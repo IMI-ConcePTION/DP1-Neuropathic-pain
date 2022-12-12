@@ -1,7 +1,5 @@
 # CLEAN THE SPELLS
 
-#keep the one including the first prescription of gaba
-
 # input: D3_output_spells_category
 # output: D3_clean_spells
 
