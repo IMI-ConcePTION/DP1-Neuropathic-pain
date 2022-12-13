@@ -4,8 +4,11 @@
 # authors: Rosa Gini, Claudia Bartolini, Olga Paoletti, Davide Messina, Giorgio Limoncella
 # based on previous scripts 
 
+# v 3.0 - 22 November 2022
+# Improve of the script based on SAP
+
 # v 2.0 - 25 September 2022
-# Improve of the scriptbased on CVM script 
+# Improve of the script based on CVM script 
 
 # v 1.0 - 27 June 2022
 # Initial release
@@ -42,16 +45,16 @@ source(paste0(thisdir,"/p_parameters/02_parameters_CDM.R"))
 source(paste0(thisdir,"/p_parameters/03_concept_sets.R"))
 
 # item sets
-source(paste0(thisdir,"/p_parameters/04_itemsets.R"))
+#source(paste0(thisdir,"/p_parameters/04_itemsets.R"))
 
 # subpopulations (not to be used in DPs)
 source(paste0(thisdir,"/p_parameters/05_subpopulations_restricting_meanings.R"))
 
-#create outcomes and covariate list of strings
-source(paste0(thisdir,"/p_parameters/06_variable_lists.R"))
-
-# parameters for algortihms
-source(paste0(thisdir,"/p_parameters/07_algorithms.R"))
+# #create outcomes and covariate list of strings
+# source(paste0(thisdir,"/p_parameters/06_variable_lists.R"))
+# 
+# # parameters for algortihms
+# source(paste0(thisdir,"/p_parameters/07_algorithms.R"))
 
 # parameters for study_design
 source(paste0(thisdir,"/p_parameters/08_study_design.R"))
@@ -73,12 +76,6 @@ launch_step("p_steps/01_T2_20_apply_CreateSpells.R")
 
 # APPLY THE FUNCTION CreateConceptSetDatasets TO CREATE ONE DATASET PER CONCEPT SET CONTAINING ONLY RECORDS WITH CODES OF INTEREST
 launch_step("p_steps/01_T2_31_CreateConceptSetDatasets.R")
-
-# RETRIEVE ITEMSET DATASETS
-launch_step("p_steps/01_T2_32_CreateItemSetDatasets.R")
-
-# RETRIEVE PROMPT DATASETS
-launch_step("p_steps/01_T2_33_CreatePromptSetDatasets.R")
 
 # CLEAN THE SPELLS
 launch_step("p_steps/01_T2_50_clean_spells.R")

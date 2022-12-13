@@ -20,7 +20,7 @@ for (subpop in subpopulations_non_empty) {
   
   person_spell <- person_spell[, .(person_id, birth_date, death_date, entry_spell_category_crude = entry_spell_category,
                                    exit_spell_category_crude = exit_spell_category, op_meaning, num_spell)]
-
+#se lo spell inizia massimm 60 giorni prima della nascita lo porto alla nascita
   person_spell[, entry_spell_category := data.table::fifelse(birth_date < entry_spell_category_crude - 60,
                                                              entry_spell_category_crude,
                                                              birth_date)]
@@ -48,9 +48,23 @@ person_spell[starts_after_ending == 0 & no_overlap_study_period == 0 &
                  less_than_x_days_and_not_starts_at_birth == 0 ,
                flag := 0]
   
-  
+ 
   #add a criteria that identify the specific spell of interest
-  person_spell[flag==0 & entry_spell_category >= study_start & exit_spell_category<= study_start , is_the_study_spell := 1]
+#importa concetto farmaci
+load(paste0(dirconceptsets,"GABAPENTIN.RData"))
+load(paste0(dirconceptsets,"PREGABALIN.RData"))
+
+GABAPENTINOIDS<-rbind(GABAPENTIN,PREGABALIN) 
+
+GABAPENTINOIDS[,date2:=date]
+setkeyv(GABAPENTINOIDS,c("person_id","date2"))
+
+setkeyv(person_spell,c("entry_spell_category","exit_spell_category"))
+
+Dataset_cohort<-foverlaps(person_spell,GABAPENTINOIDS)
+
+  person_spell[flag==0 &   := 1]
+#entry_spell_category >= study_start & exit_spell_category<= study_start , is_the_study_spell 
   
 #alternative for dinamic cohort (example: if a subject enter after the study start it will be included with this alternative way)--------------------
   

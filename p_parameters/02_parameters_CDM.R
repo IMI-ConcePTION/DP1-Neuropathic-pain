@@ -3,7 +3,7 @@
 # this file should not be modified
 ###################################################################
 
-datasources_prescriptions <- c('CPRD',"PHARMO")
+datasources_prescriptions <- c("EFEMERIS","SNDS") #add Finland and Norway 
 thisdatasource_has_prescriptions <- ifelse(thisdatasource %in% datasources_prescriptions,TRUE,FALSE)
 
 # assign -files_ConcePTION_CDM_tables-: it is a 2-level list, listing the csv files where the tables of the local instance of the ConcePTION CDM are stored 
