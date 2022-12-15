@@ -280,9 +280,9 @@ Neuropathic pain;READ_V2_V3_COMBINED;N239. ;;algo_S5;;Neuropathic_pain_S5
 Neuropathic pain;READ_V2_V3_COMBINED;N143.00 ;;algo_S5;;Neuropathic_pain_S5
 Neuropathic pain;READ_V2_V3_COMBINED;N142000;;algo_S5;;Neuropathic_pain_S5
 Neuropathic pain;ATC;J05AB01;;algo_S5;;Neuropathic_pain_drugs_S5
-Neuropathic pain;ATC;J05AB11 ;;algo_S5;;Neuropathic_pain_drugs_S6
-Neuropathic pain;ATC;J05AB09 ;;algo_S5;;Neuropathic_pain_drugs_S7
-Neuropathic pain;ATC;A10AD01;;algo_S5;;Neuropathic_pain_drugs_S8
+Neuropathic pain;ATC;J05AB11 ;;algo_S5;;Neuropathic_pain_drugs_S5
+Neuropathic pain;ATC;J05AB09 ;;algo_S5;;Neuropathic_pain_drugs_S5
+Neuropathic pain;ATC;A10AD01;;algo_S5;;Neuropathic_pain_drugs_S5
 Neuropathic pain;ICD10;M79;;algo_S6;;Neuropathic_pain_S6
 Neuropathic pain;ICD10;R52 ;;algo_S6;;Neuropathic_pain_S6
 Neuropathic pain;ICD10;G35.9;;algo_S6;;Neuropathic_pain_S6
@@ -327,8 +327,8 @@ Neuropathic pain;READ_V2_V3_COMBINED;F20;;algo_S6;;Neuropathic_pain_S6
 Neuropathic pain;READ_V2_V3_COMBINED;N143.00 ;;algo_S6;;Neuropathic_pain_S6
 Neuropathic pain;READ_V2_V3_COMBINED;N142000;;algo_S6;;Neuropathic_pain_S6
 Neuropathic pain;ATC;A10AD01;;algo_S6;;Neuropathic_pain_drugs_S6
-Neuropathic pain;ATC;J05AB01;;algo_S6;;Neuropathic_pain_drugs_S7
-Neuropathic pain;ATC;J05AB11;;algo_S6;;Neuropathic_pain_drugs_S8
-Neuropathic pain;ATC;J05AB09;;algo_S6;;Neuropathic_pain_drugs_S9
+Neuropathic pain;ATC;J05AB01;;algo_S6;;Neuropathic_pain_drugs_S6
+Neuropathic pain;ATC;J05AB11;;algo_S6;;Neuropathic_pain_drugs_S6
+Neuropathic pain;ATC;J05AB09;;algo_S6;;Neuropathic_pain_drugs_S6
 Gabapentin;ATC;N03AX12;;algo_M1;;Gabapentin
 Pregabalin;ATC;N03AX16;;algo_M1;;Pregabalin

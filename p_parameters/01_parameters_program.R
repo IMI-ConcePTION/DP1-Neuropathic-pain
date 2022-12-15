@@ -15,7 +15,6 @@ datasources <- c("TEST","ARS","BIPS","BIFAP","FISABIO","SIDIAP","PEDIANET","PHAR
 # dirbase <- getwd()
 # dirinput <- paste0(dirbase,"/CDMInstances/CVM2205_EFFICACY_CHILDREN/")
 
-dirinput <- paste0(thisdir,"/i_simulated_data_instance/")
 
 set_and_create_dir <- function(x) {
   x <- paste0(thisdir, x)

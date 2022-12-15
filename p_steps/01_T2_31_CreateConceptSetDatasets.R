@@ -4,6 +4,9 @@
 # input: EVENTS, MEDICINES, SURVEY_OBSERVATIONS, MEDICAL_OBSERVATIONS
 # output: concept set datasets, one per concept set, named after the concept set itself
 
+timefilter<-list()
+timefilter[["Diagnosis"]]<-"date>=study_start & date<= study_end"
+timefilter[["Medicines"]]<-"date>=study_start & date<= study_end"
 
 print('RETRIEVE FROM CDM RECORDS CORRESPONDING TO CONCEPT SETS')
 
@@ -20,7 +23,7 @@ CreateConceptSetDatasets(concept_set_names = concept_sets_of_our_study,
                          concept_set_domains = concept_set_domains,
                          concept_set_codes =	concept_set_codes_our_study,
                          concept_set_codes_excl = concept_set_codes_our_study_excl,
-                         filter_expression = prova,
+                         filter_expression = timefilter,
                          discard_from_environment = T,
                          dirinput = dirinput,
                          diroutput = dirconceptsets,

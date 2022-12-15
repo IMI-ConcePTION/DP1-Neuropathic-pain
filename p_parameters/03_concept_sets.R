@@ -53,4 +53,5 @@ for (concept in names(concept_set_codes_our_study)) {
 
 
 rm(concept)
+rm(OUT_codelist)
 

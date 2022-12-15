@@ -6,6 +6,7 @@
 
 # firstjan2021 <- ymd(20210101)
 # 
+date_format<-"%Y%m%d"
  study_start <- as.Date(as.character(20060101), date_format)
  
  if (thisdatasource=="SNDS") study_start <- as.Date(as.character(20180101), date_format)
@@ -16,7 +17,7 @@
  
  study_end <- as.Date(as.character(20191231), date_format)
  
- if (thisdatasource=="Finland") study_end <- as.Date(as.character(20190331), date_format)
+ if (thisdatasource=="Finland??") study_end <- as.Date(as.character(20190331), date_format)
  if (thisdatasource=="ARS") study_end <- as.Date(as.character(20201231), date_format)
 
  # study_end <- min(instance_creation, recommended_end_date, na.rm = T)
@@ -36,7 +37,7 @@ admissible_gap_obs_periods[['ARS']] <- 365
 admissible_gap_obs_periods[['TEST']] <- 365
 admissible_gap_obs_periods[['BIPS']] <- 30
 
-days <- ifelse(is.na(admissible_gap_obs_periods[[thisdatasource]]),1, admissible_gap_obs_periods[[thisdatasource]])
+gap_days <- ifelse(is.na(admissible_gap_obs_periods[[thisdatasource]]),1, admissible_gap_obs_periods[[thisdatasource]])
 
 
 
