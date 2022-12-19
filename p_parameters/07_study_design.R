@@ -17,7 +17,7 @@ date_format<-"%Y%m%d"
  
  study_end <- as.Date(as.character(20191231), date_format)
  
- if (thisdatasource=="Finland??") study_end <- as.Date(as.character(20190331), date_format)
+ if (thisdatasource=="THL") study_end <- as.Date(as.character(20190331), date_format)
  if (thisdatasource=="ARS") study_end <- as.Date(as.character(20201231), date_format)
 
  # study_end <- min(instance_creation, recommended_end_date, na.rm = T)
@@ -35,11 +35,18 @@ date_format<-"%Y%m%d"
 admissible_gap_obs_periods <- vector(mode="list")
 admissible_gap_obs_periods[['ARS']] <- 365
 admissible_gap_obs_periods[['TEST']] <- 365
-admissible_gap_obs_periods[['BIPS']] <- 30
 
-gap_days <- ifelse(is.na(admissible_gap_obs_periods[[thisdatasource]]),1, admissible_gap_obs_periods[[thisdatasource]])
+gap_days <- ifelse(thisdatasource %not in% names(admissible_gap_obs_periods),
+                   1, admissible_gap_obs_periods[[thisdatasource]])
 
 
 
 # define number of days a spells should not be shorter
 min_spell_lenght<-365
+
+
+###
+# datasources with multiple observation period 
+
+datasources_with_multiple_obs_period <- c("EFEMERIS","THL") 
+this_datasource_has_multiple_obs_period <- ifelse(thisdatasource %in% datasources_with_multiple_obs_period,TRUE,FALSE)

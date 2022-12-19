@@ -1,4 +1,17 @@
 event_definition;coding_system;code;code_name;algo_name;exclude;event_abbreviation
+Neuropathic pain;speciality_prescriber_ Finish;570;Rheumatologist ;algo_M1;;Neuropathic_pain
+Neuropathic pain;speciality_prescriber_ Finish;742;Rheumatologist ;algo_M1;;Neuropathic_pain
+Neuropathic pain;speciality_prescriber_ Finish;100;Anesthesiologist ;algo_M1;;Neuropathic_pain
+Neuropathic pain;speciality_prescriber_ Finish;202;Orthopedist ;algo_M1;;Neuropathic_pain
+Neuropathic pain;speciality_prescriber_ Finish;230;Orthopedist ;algo_M1;;Neuropathic_pain
+Neuropathic pain;french_medical_speciality;14;Rheumatologist;algo_M1;;Neuropathic_pain
+Neuropathic pain;french_medical_speciality;2;Anesthesiologis;algo_M1;;Neuropathic_pain
+Neuropathic pain;french_medical_speciality;41;Orthopedist ;algo_M1;;Neuropathic_pain
+Neuropathic pain;NorPD_prescriber_speciality;41;Rheumatologist ;algo_M1;;Neuropathic_pain
+Neuropathic pain;NorPD_prescriber_speciality;2;Anesthesiologist ;algo_M1;;Neuropathic_pain
+Neuropathic pain;NorPD_prescriber_speciality;84;Orthopedic surgeon ;algo_M1;;Neuropathic_pain
+Neuropathic pain;NorPD_prescriber_speciality;152;Orthopedic surgeon ;algo_M1;;Neuropathic_pain
+Neuropathic pain;NorPD_prescriber_speciality;192;Endocrinologist ;algo_M1;;Neuropathic_pain
 Neuropathic pain;ICD10;R52;pain unspecified;algo_M1;;Neuropathic_pain
 Neuropathic pain;ICD10;G50 ;;algo_M1;;Neuropathic_pain
 Neuropathic pain;ICD10;G51;;algo_M1;;Neuropathic_pain
@@ -165,6 +178,11 @@ Neuropathic pain;ATC;N02AX06 ;tapentadol;algo_M1;;Neuropathic_pain_drugs
 Neuropathic pain;ATC;N07BC02 ;methadone;algo_M1;;Neuropathic_pain_drugs
 Neuropathic pain;ATC;M03AX01;botulinum toxin A;algo_M1;;Neuropathic_pain_drugs
 Neuropathic pain;READ_V2_V3_COMBINED;N2423;Neuropathic pain;algo_M1;;Neuropathic_pain
+Epilepsy;indication_code;111;Epilepsy;algo_M1;;Epilepsy_drugs
+Epilepsy;indication_code;181;Epilepsy;algo_M1;;Epilepsy_drugs
+Epilepsy;indication_code;182;Epilepsy;algo_M1;;Epilepsy_drugs
+Epilepsy;indication_code;183;Epilepsy;algo_M1;;Epilepsy_drugs
+Epilepsy;indication_code;199;Epilepsy;algo_M1;;Epilepsy_drugs
 Epilepsy;ICD10;G40 ;Epilepsy;algo_M1;;Epilepsy
 Epilepsy;ICD10;G41 ;Status epilepticus;algo_M1;;Epilepsy
 Epilepsy;ICD9;780.3x;convulsion;algo_M1;;Epilepsy
@@ -187,6 +205,9 @@ Epilepsy;ATC;N03AX17;Stiripentol ;algo_M1;;Epilepsy_drugs
 Epilepsy;ATC;N03AG06;Tiagabine ;algo_M1;;Epilepsy_drugs
 Epilepsy;ATC;N03AX10;Felbamate ;algo_M1;;Epilepsy_drugs
 Epilepsy;ATC;N03AG04;Vigabatrin ;algo_M1;;Epilepsy_drugs
+GAD;french_medical_speciality;33;Psychiatrist;algo_M1;;GAD_drugs
+GAD;french_medical_speciality;75;Psychiatrist;algo_M1;;GAD_drugs
+GAD;NorPD_prescriber_speciality;58;Psychiatrist;algo_M1;;GAD_drugs
 GAD;ICD10;F40 ;Phobic anxiety disorders;algo_M1;;GAD
 GAD;ICD10;F41 ;Other anxiety disorders;algo_M1;;GAD
 GAD;ICD10;F42 ;Obsessive-compulsive disorder;algo_M1;;GAD

@@ -19,7 +19,7 @@
 
 # input: the VAC4EU spreadsheets, restricted to the conceptsets associated with this study
 
-OUT_codelist <- fread(paste0(thisdir,"/p_parameters/archive_parameters/codelist_DP1.csv"))
+OUT_codelist <- fread(paste0(thisdir,"/p_parameters/archive_parameters/codelist_DP1_EFEMERIS.csv"))
 OUT_codelist <- OUT_codelist[, .(coding_system, code, event_abbreviation)]
 #OUT_codelist <- OUT_codelist[type != "PrA"]
 OUT_codelist <- OUT_codelist[code != "", ][, event_abbreviation := toupper(event_abbreviation)]
@@ -38,8 +38,21 @@ concept_set_codes_our_study <- lapply(concept_set_codes_our_study, sapply, unlis
      
  concept_set_codes_our_study_excl <- vector(mode="list")
  
- concept_set_codes_our_study_excl[["EPILEPSY_DRUGS"]][["ATC"]] <- c("N03AX16", "N03AX12","N03AF01")
- concept_set_codes_our_study_excl[["GAD"]][["ATC"]] <- c("N06AA", "N06AX") #N06AX21
+ if (thisdatasource=="SAIL" |thisdatasource=="EFEMERIS" | thisdatasource=="SNDS") {
+   concept_set_codes_our_study_excl[["EPILEPSY_DRUGS"]][["ATC"]] <- c("N03AX16", "N03AX12","N03AF01")
+ }else{
+   concept_set_codes_our_study_excl[["EPILEPSY_DRUGS"]][["ATC"]] <- c("N03AX16", "N03AX12")
+   
+ }
+
+ 
+ if (thisdatasource=="SAIL" |thisdatasource=="EFEMERIS" | thisdatasource=="SNDS") {
+   concept_set_codes_our_study_excl[["GAD"]][["ATC"]] <- c("N06AA", "N06AX21") 
+ }else{
+   concept_set_codes_our_study_excl[["GAD"]][["ATC"]] <- c("N06AA", "N06AX") 
+   
+ }
+
 
 
 concept_set_domains<- vector(mode="list")
