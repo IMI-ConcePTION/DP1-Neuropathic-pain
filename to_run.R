@@ -4,7 +4,10 @@
 # authors: Rosa Gini, Claudia Bartolini, Olga Paoletti, Davide Messina, Giorgio Limoncella
 # based on previous scripts 
 
-# v 1.0 - 10 December 2022
+# v 2.0 - 25 September 2022
+# Improve of the scriptbased on CVM script 
+
+# v 1.0 - 27 June 2022
 # Initial release
 
 rm(list=ls(all.names=TRUE))
@@ -26,16 +29,14 @@ dirpregnancyinput <- paste0(thisdir,"/i_simulated_data_instance/pregnancy/")
 #LOAD PARAMTETERS
 #----------------
 
-
 source(paste0(thisdir,"/p_parameters/01_parameters_program.R")) #GENERAL
 source(paste0(thisdir,"/p_parameters/02_parameters_CDM.R")) #CDM
 source(paste0(thisdir,"/p_parameters/03_concept_sets.R")) #CONCEPTSETS
-#source(paste0(thisdir,"/p_parameters/04_itemsets.R")) #ITEMSETS
-#source(paste0(thisdir,"/p_parameters/05_variable_lists.R")) #OUTCOMES AND COVARIATES
-#source(paste0(thisdir,"/p_parameters/06_algorithms.R")) #ALGORITHMS
+source(paste0(thisdir,"/p_parameters/04_itemsets.R")) #ITEMSETS
+source(paste0(thisdir,"/p_parameters/05_variable_lists.R")) #OUTCOMES AND COVARIATES
+source(paste0(thisdir,"/p_parameters/06_algorithms.R")) #ALGORITHMS
 source(paste0(thisdir,"/p_parameters/07_study_design.R")) #STUDY DESIGN
 source(paste0(thisdir,"/p_parameters/99_saving_all_parameters.R")) #SAVING AND CLEANING PARAMETERS
-
 
 #----------------
 # RUN STEPS
@@ -52,12 +53,23 @@ launch_step("p_steps/01_T2_20_apply_CreateSpells.R")
 # APPLY THE FUNCTION CreateConceptSetDatasets TO CREATE ONE DATASET PER CONCEPT SET CONTAINING ONLY RECORDS WITH CODES OF INTEREST
 launch_step("p_steps/01_T2_31_CreateConceptSetDatasets.R")
 
+# RETRIEVE ITEMSET DATASETS
+launch_step("p_steps/01_T2_32_CreateItemSetDatasets.R")
+
+# RETRIEVE PROMPT DATASETS
+launch_step("p_steps/01_T2_33_CreatePromptSetDatasets.R")
+
 # CLEAN THE SPELLS
 launch_step("p_steps/01_T2_40_clean_spells.R")
 
 # CREATE EXCLUSION CRITERIA for persons/spells
-launch_step("p_steps/01_T2_60_selection_criteria_from_PERSON_to_study_population_pregnancy.R")
+launch_step("p_steps/01_T2_50_selection_criteria_from_PERSON_to_study_population.R")
 
-#create study poulation
 launch_step("p_steps/02_T3_10_create_study_population.R")
 
+#will run after the definition of algorithms and variables 
+
+# launch_step("p_steps/03_T2_10_create_D3_outcomes_simple_algorithm.R")
+# launch_step("p_steps/03_T2_11_create_D3_outcomes_complex_algorithm.R")
+# launch_step("p_steps/03_T2_12_create_D3_event_outcomes_ALL.R")
+# launch_step("p_steps/03_T2_40_create_study_population_main_variables.R")

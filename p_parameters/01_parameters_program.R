@@ -15,6 +15,7 @@ datasources <- c("TEST","ARS","BIPS","BIFAP","FISABIO","SIDIAP","PEDIANET","PHAR
 # dirbase <- getwd()
 # dirinput <- paste0(dirbase,"/CDMInstances/CVM2205_EFFICACY_CHILDREN/")
 
+dirinput <- paste0(thisdir,"/i_simulated_data_instance/")
 
 set_and_create_dir <- function(x) {
   x <- paste0(thisdir, x)
@@ -32,10 +33,8 @@ dirconceptsets <- set_and_create_dir("/g_intermediate/concept_sets/")
 direxp <- set_and_create_dir("/g_export/")
 dirmacro <- set_and_create_dir("/p_macro/")
 dirpargen <- set_and_create_dir("/g_parameters/")
-#direvents <- set_and_create_dir("/g_intermediate/events/")
-#dircomponents <- set_and_create_dir("/g_intermediate/components/")
-#PathOutputFolder <- set_and_create_dir("/g_describeHTML")
-
+direvents <- set_and_create_dir("/g_intermediate/events/")
+dircomponents <- set_and_create_dir("/g_intermediate/components/")
 dirsmallcountsremoved<- set_and_create_dir("/g_intermediate/dirsmallcountsremoved/")
   
 rm(set_and_create_dir)
@@ -46,8 +45,8 @@ read_library <- function(...) {
   invisible(lapply(x, library, character.only = TRUE))
 }
 
-list.of.packages <- c("MASS", "haven", "tidyverse", "lubridate", "AdhereR", "stringr", "purrr", "readr", "dplyr",
-                      "survival", "rmarkdown", "ggplot2", "data.table", "qpdf", "parallel", "readxl", "fst")
+list.of.packages <- c("MASS", "haven", "lubridate", "stringr", "purrr", "readr", "dplyr",
+                      "data.table", "readxl", "qs")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) install.packages(new.packages)
 invisible(lapply(list.of.packages, require, character.only = T))
@@ -66,20 +65,18 @@ source(paste0(dirmacro,"CreateFlowChart.R"))
 source(paste0(dirmacro,"ApplyComponentStrategy_v13_2.R"))
 source(paste0(dirmacro,"CreateFigureComponentStrategy_v4.R"))
 source(paste0(dirmacro,"DRECountThresholdV4.R"))
-#source(paste0(dirmacro,"df_to_list_of_list.R"))
+source(paste0(dirmacro,"df_to_list_of_list.R"))
 source(paste0(dirmacro,"launch_step.R"))
 
 ###################################################################
 # RETRIEVE INFORMATION FROM CDM_SOURCE
 ###################################################################
 
-
 CDM_SOURCE<- fread(paste0(dirinput,"CDM_SOURCE.csv"))
 thisdatasource <- as.character(CDM_SOURCE[1,3])
 instance_creation <- ymd(CDM_SOURCE[1,"date_creation"])
 recommended_end_date <- ymd(CDM_SOURCE[1,"recommended_end_date"])
 rm(CDM_SOURCE)
-
 
 ###################################################################
 # CREATE EMPTY FILES
@@ -179,10 +176,34 @@ read_CDM_tables <- function(x) {
   return(final_table)
 }
 
-smart_save <- function(df, folder, subpop = "") {
-  write.fst(df, paste0(folder, deparse(substitute(df)), suffix[[subpop]], ".fst"), compress = 100)
+smart_save <- function(df, folder, subpop = F, extension = "qs", override_name = F) {
+  
+  subpop_str <- if (isFALSE(subpop)) "" else suffix[[subpop]]
+  df_name <- if (isFALSE(override_name)) deparse(substitute(df)) else override_name
+  extension <- if (!grepl("\\.", extension)) paste0(".", extension)
+  
+  file_name <- paste0(folder, df_name, subpop_str, extension)
+  
+  if (extension == ".qs") {
+    qs::qsave(df, file_name, preset = "high", nthreads = parallel::detectCores()/2)
+  } else if (extension == ".fst") {
+    fst::write.fst(df, file_name, compress = 100)
+  } else {
+    saveRDS(df, file_name)
+  }
 }
 
-smart_load <- function(df, folder, subpop = "") {
-  read.fst(paste0(folder, df, suffix[[subpop]], ".fst"), as.data.table = T)
+smart_load <- function(df, folder, subpop = F, extension = "qs") {
+  
+  subpop_str <- if (isFALSE(subpop)) "" else suffix[[subpop]]
+  extension <- paste0(".", extension)
+  
+  file_name <- paste0(folder, df, subpop_str, extension)
+  if (extension == ".qs") {
+    assign(df, qs::qread(file_name, nthreads = parallel::detectCores()/2), envir = .GlobalEnv)
+  } else if (extension == ".fst") {
+    assign(df, fst::read.fst(file_name, as.data.table = T), envir = .GlobalEnv)
+  } else {
+    assign(df, readRDS(file_name), envir = .GlobalEnv)
+  }
 }

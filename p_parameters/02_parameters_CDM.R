@@ -3,25 +3,20 @@
 # this file should not be modified
 ###################################################################
 
-
-datasources_prescriptions <- c("THL","SNDS","UOSL") #add Finland and Norway 
-thisdatasource_has_prescriptions <- ifelse(thisdatasource %in% datasources_prescriptions,TRUE,FALSE)
+datasources_prescriptions <- c("CPRD", "PHARMO")
+thisdatasource_has_prescriptions <- ifelse(thisdatasource %in% datasources_prescriptions, TRUE, FALSE)
 rm(datasources_prescriptions)
-
 
 # assign -files_ConcePTION_CDM_tables-: it is a 2-level list, listing the csv files where the tables of the local instance of the ConcePTION CDM are stored 
 files_ConcePTION_CDM_tables <- list()
 
 files <- sub('\\.csv$', '', list.files(dirinput))
 
-#removed ,"PROCEDURES" from next row
-category_files_ConcePTION_CDM_tables <- c("EVENTS", "VISIT_OCCURRENCE", "MEDICINES",
-                                          "MEDICAL_OBSERVATIONS", "SURVEY_OBSERVATIONS",
+category_files_ConcePTION_CDM_tables <- c("EVENTS", "VISIT_OCCURRENCE", "MEDICINES", "PROCEDURES",
+                                          "MEDICAL_OBSERVATIONS", "SURVEY_OBSERVATIONS", "VACCINES",
                                           "SURVEY_ID", "PERSONS", "OBSERVATION_PERIODS")
-
-#removed ,"PROCEDURES" from next row
-names(category_files_ConcePTION_CDM_tables) <- c("EVENTS", "VISIT_OCCURRENCE", "MEDICINES", 
-                                                 "MEDICAL_OBSERVATIONS", "SURVEY_OBSERVATIONS",
+names(category_files_ConcePTION_CDM_tables) <- c("EVENTS", "VISIT_OCCURRENCE", "MEDICINES", "PROCEDURES", 
+                                                 "MEDICAL_OBSERVATIONS", "SURVEY_OBSERVATIONS", "VACCINES",
                                                  "SURVEY_ID", "PERSONS", "OBSERVATION_PERIODS")
 
 for (a in names(category_files_ConcePTION_CDM_tables)) {
@@ -35,11 +30,11 @@ rm(files, category_files_ConcePTION_CDM_tables)
 
 ConcePTION_CDM_tables <- vector(mode="list")
 
+ConcePTION_CDM_tables[["VaccineATC"]] <- files_ConcePTION_CDM_tables[["VACCINES"]]
 ConcePTION_CDM_tables[["Diagnosis"]] <- files_ConcePTION_CDM_tables[["EVENTS"]]
 ConcePTION_CDM_tables[["Diagnosis_free_text"]] <- files_ConcePTION_CDM_tables[["EVENTS"]]
 ConcePTION_CDM_tables[["Medicines"]] <- files_ConcePTION_CDM_tables[["MEDICINES"]]
-#ConcePTION_CDM_tables[["Procedures"]] <- files_ConcePTION_CDM_tables[["PROCEDURES"]]
-ConcePTION_CDM_tables[["Visit"]] <- files_ConcePTION_CDM_tables[["VISIT_OCCURRENCE"]]
+ConcePTION_CDM_tables[["Procedures"]] <- files_ConcePTION_CDM_tables[["PROCEDURES"]]
 ConcePTION_CDM_tables[["Results"]] <- files_ConcePTION_CDM_tables[["MEDICAL_OBSERVATIONS"]]
 
 alldomain<-names(ConcePTION_CDM_tables)
@@ -72,6 +67,11 @@ date <- list()
 
 ConcePTION_CDM_codvar <- list()
 
+for (ds in ConcePTION_CDM_tables[["VaccineATC"]]) {
+  ConcePTION_CDM_codvar[["VaccineATC"]][[ds]] <- "vx_atc"
+  person_id[["VaccineATC"]][[ds]] <- "person_id"
+  date[["VaccineATC"]][[ds]] <- "vx_admin_date"
+}
 
 for (ds in files_ConcePTION_CDM_tables[["SURVEY_OBSERVATIONS"]]){
   ConcePTION_CDM_codvar[["Diagnosis"]][[ds]]="so_source_value"
@@ -83,12 +83,8 @@ for (ds in files_ConcePTION_CDM_tables[["MEDICAL_OBSERVATIONS"]]){
 for (ds in files_ConcePTION_CDM_tables[["MEDICINES"]]){
   ConcePTION_CDM_codvar[["Medicines"]][[ds]]="medicinal_product_atc_code"
 }
-# for (ds in files_ConcePTION_CDM_tables[["PROCEDURES"]]){
-#   ConcePTION_CDM_codvar[["Procedures"]][[ds]]="procedure_code"
-# }
-
-for (ds in files_ConcePTION_CDM_tables[["VISIT_OCCURRENCE"]]){
-  ConcePTION_CDM_codvar[["Visit"]][[ds]]="specialty_of_visit"
+for (ds in files_ConcePTION_CDM_tables[["PROCEDURES"]]){
+  ConcePTION_CDM_codvar[["Procedures"]][[ds]]="procedure_code"
 }
 
 for (ds in files_ConcePTION_CDM_tables[["EVENTS"]]){
@@ -101,6 +97,9 @@ for (ds in files_ConcePTION_CDM_tables[["EVENTS"]]){
 
 ConcePTION_CDM_datevar <- list()
 
+for (ds in ConcePTION_CDM_tables[["VaccineATC"]]) {
+  ConcePTION_CDM_datevar[["VaccineATC"]][[ds]] <- "vx_admin_date"
+}
 for (ds in files_ConcePTION_CDM_tables[["SURVEY_OBSERVATIONS"]]){
   ConcePTION_CDM_datevar[["Diagnosis"]][[ds]]="so_date"
 }
@@ -114,10 +113,6 @@ for (ds in files_ConcePTION_CDM_tables[["MEDICINES"]]){
 for (ds in files_ConcePTION_CDM_tables[["EVENTS"]]){
   ConcePTION_CDM_datevar[["Diagnosis"]][[ds]]=list("start_date_record","end_date_record")
   ConcePTION_CDM_datevar[["Diagnosis_free_text"]][[ds]]=list("start_date_record","end_date_record")
-}
-
-for (ds in files_ConcePTION_CDM_tables[["VISIT_OCCURRENCE"]]){
-  ConcePTION_CDM_datevar[["Visit"]][[ds]]="visit_start_date"
 }
 
 #====================
@@ -143,18 +138,16 @@ for (ds in files_ConcePTION_CDM_tables[["MEDICINES"]]){
   date_retrieve[[ds]] = ifelse(thisdatasource_has_prescriptions, "date_prescription", "date_dispensing")
   meaning_retrieve[[ds]] = "meaning_of_drug_record"
 }
-# for (ds in files_ConcePTION_CDM_tables[["PROCEDURES"]]){
-#   person_id_retrieve[[ds]] = "person_id"
-#   date_retrieve[[ds]] = "procedure_date"
-#   meaning_retrieve[[ds]] = "meaning_of_procedure"
-# }
-
-for (ds in files_ConcePTION_CDM_tables[["VISIT_OCCURRENCE"]]){
+for (ds in files_ConcePTION_CDM_tables[["PROCEDURES"]]){
   person_id_retrieve[[ds]] = "person_id"
-  date_retrieve[[ds]] = "visit_start_date"
-  meaning_retrieve[[ds]] = "meaning_of_visit"
+  date_retrieve[[ds]] = "procedure_date"
+  meaning_retrieve[[ds]] = "meaning_of_procedure"
 }
-
+for (ds in files_ConcePTION_CDM_tables[["VACCINES"]]){
+  person_id_retrieve[[ds]] = "person_id"
+  date_retrieve[[ds]] = "vx_admin_date"
+  meaning_retrieve[[ds]] = "meaning_of_vx_record"
+}
 for (ds in files_ConcePTION_CDM_tables[["MEDICAL_OBSERVATIONS"]]){
   person_id_retrieve[[ds]] = "person_id"
   date_retrieve[[ds]] = "mo_date"
@@ -173,8 +166,7 @@ person_id <- list()
 date <- list()
 meaning_renamed <- list()
 
-#removed ,"PROCEDURES" from next row
-for (tab in c("EVENTS","VISIT_OCCURRENCE","MEDICINES","MEDICAL_OBSERVATIONS","SURVEY_OBSERVATIONS")){
+for (tab in c("EVENTS","VACCINES","MEDICINES","PROCEDURES","MEDICAL_OBSERVATIONS","SURVEY_OBSERVATIONS")){
   for (dom in alldomain){
     for (ds in files_ConcePTION_CDM_tables[[tab]]) {
       person_id[[dom]][[ds]] <- person_id_retrieve[[ds]]
