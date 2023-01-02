@@ -13,7 +13,7 @@ CreateConceptSetDatasets(concept_set_names = concept_sets_of_our_study,
                          datevar = ConcePTION_CDM_datevar,
                          EAVtables = ConcePTION_CDM_EAV_tables,
                          EAVattributes = ConcePTION_CDM_EAV_attributes_this_datasource,
-                         # dateformat= "YYYYmmdd",
+                         dateformat= "YYYYmmdd",
                          vocabulary = ConcePTION_CDM_coding_system_cols,
                          rename_col = list(person_id = person_id, date = date,
                                            meaning_renamed = meaning_renamed),
@@ -24,8 +24,5 @@ CreateConceptSetDatasets(concept_set_names = concept_sets_of_our_study,
                          dirinput = dirinput,
                          diroutput = dirconceptsets,
                          extension = c("csv"),
-                         vocabularies_with_dot_wildcard=c("B281
-
-READ_V2_V3_COMBINED"))
-                         #vocabularies_with_exact_search = "Free_text"
-
+                         vocabularies_with_dot_wildcard = c("READ"),
+                         vocabularies_with_exact_search = "Free_text")
