@@ -141,6 +141,14 @@ MergeFilterAndCollapse <- function(listdatasetL,datasetS,key,condition,
       if (length(elem)==3) {nameSTAT = c(nameSTAT,paste0(elem[3]))}
       else{nameSTAT = c(nameSTAT,paste0("second_",elem[2]))}
       listSTAT = append(listSTAT,paste0(elem[[2]],"[2]"))}
+    if ("third" %in% elem[[1]]) {
+      if (length(elem)==3) {nameSTAT = c(nameSTAT,paste0(elem[3]))}
+      else{nameSTAT = c(nameSTAT,paste0("third_",elem[2]))}
+      listSTAT = append(listSTAT,paste0(elem[[2]],"[3]"))}
+    if ("fourth" %in% elem[[1]]) {
+      if (length(elem)==3) {nameSTAT = c(nameSTAT,paste0(elem[3]))}
+      else{nameSTAT = c(nameSTAT,paste0("fourth_",elem[2]))}
+      listSTAT = append(listSTAT,paste0(elem[[2]],"[4]"))}
     if ("secondlast" %in% elem[[1]]) {
       if (length(elem)==3) {nameSTAT = c(nameSTAT,paste0(elem[3]))}
       else{nameSTAT = c(nameSTAT,paste0("secondlast_",elem[2]))}
@@ -149,6 +157,18 @@ MergeFilterAndCollapse <- function(listdatasetL,datasetS,key,condition,
       if (length(elem)==3) {nameSTAT = c(nameSTAT,paste0(elem[3]))}
       else{nameSTAT = c(nameSTAT,paste0("last_",elem[2]))}
       listSTAT = append(listSTAT,paste0(elem[[2]],"[.N]"))}
+    if ("median" %in% elem[[1]]) {
+      if (length(elem)==3) {nameSTAT = c(nameSTAT,paste0(elem[3]))}
+      else{nameSTAT = c(nameSTAT,paste0("median_",elem[2]))}
+      listSTAT = append(listSTAT,paste0("quantile(",elem[[2]], ", 0.50, na.rm = T)"))}
+    if ("25p" %in% elem[[1]]) {
+      if (length(elem)==3) {nameSTAT = c(nameSTAT,paste0(elem[3]))}
+      else{nameSTAT = c(nameSTAT,paste0("median_",elem[2]))}
+      listSTAT = append(listSTAT,paste0("quantile(",elem[[2]], ", 0.25, na.rm = T)"))}
+    if ("75p" %in% elem[[1]]) {
+      if (length(elem)==3) {nameSTAT = c(nameSTAT,paste0(elem[3]))}
+      else{nameSTAT = c(nameSTAT,paste0("75p_",elem[2]))}
+      listSTAT = append(listSTAT,paste0("quantile(",elem[[2]], ", 0.75, na.rm = T)"))}
 
     for (i in 1:length(nameSTAT)) {
       tmp <- suppressWarnings(tmp[,nameSTAT[i] := eval(parse(text = ..listSTAT[i])), by = strata])

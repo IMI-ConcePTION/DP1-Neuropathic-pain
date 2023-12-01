@@ -1,0 +1,75 @@
+event_definition;coding_system;code;code_name;comments;event_abbreviation
+Pain-specific medications;ATC;N02AX02;tramadol;;tramadol
+Pain-specific medications;ATC;N01BX04;capsaicin;;capsaicin
+Pain-specific medications;ATC;N01BB02;lidocaine plaster;;lidocaine_plaster
+Pain-specific medications;ATC;N02AA01;morphine;;morphine
+Pain-specific medications;ATC;N02AA51;morphine;;morphine
+Pain-specific medications;ATC;N02AA05;oxycodone;;oxycodone
+Pain-specific medications;ATC;N02AX06;tapentadol;;tapentadol
+Pain-specific medications;ATC;N02BG08;ziconotide;;ziconotide
+Pain-specific medications;ATC;N02AA02;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AA03;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AA04;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AA08;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AA10;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AA11;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AA53;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AA58;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AA59;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AA79;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AB;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AC;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AD;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AE;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AF;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AG;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AJ;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AX01;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AX03;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AX07;Other strong opioids;;other_strong_opioids
+Pain-specific medications;ATC;N02AX51;Other strong opioids;;other_strong_opioids
+Non-specific pain medications;ATC;N06AA09;amitriptyline;;amitriptyline
+Non-specific pain medications;ATC;N06AA04;clomipramine;;clomipramine
+Non-specific pain medications;ATC;N06AA02;imipramine;;imipramine
+Non-specific pain medications;ATC;N06AX16;venlafaxine;;venlafaxine
+Non-specific pain medications;ATC;N06AX21;duloxetine;;duloxetine
+Non-specific pain medications;ATC;M03AX01;botulinum toxin A;;botulinum_toxin_A
+Non-specific pain medications;ATC;N06AA10;nortriptyline;;nortriptyline
+Non-specific pain medications;ATC;N03AF01;carbamazepine;;carbamazepine
+Non-specific pain medications;ATC;N07BC02;methadone;;methadone
+Epilepsy;ATC;N03AA;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AB;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AC;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AD;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AE;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AG;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX03;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX07;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX09;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX10;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX11;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX13;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX14;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX15;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX17;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX18;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX19;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX21;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX22;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX23;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX24;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX25;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX26;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX27;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AX30;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AF02;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AF03;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AF01;antiepileptics;;antiepileptics
+Epilepsy;ATC;N03AF04;antiepileptics;;antiepileptics
+Epilepsy;ATC;N05BA09 ;clobazam;;clobazam
+GAD;ATC;N05BA;benzodiazepine derivatives;;benzodiazepine_derivatives
+GAD;ATC;N06A;antidepressants;;antidepressants
+Gabapentin;ATC;N03AX12;;;gabapentin
+Gabapentin;ATC;N02BF01;;;gabapentin
+Pregabalin;ATC;N03AX16;;;pregabalin
+Pregabalin;ATC;N02BF02;;;pregabalin

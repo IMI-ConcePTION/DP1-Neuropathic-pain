@@ -1,0 +1,1197 @@
+---
+title: "Pregnancy cohort description"
+output: 
+  html_document:
+    theme: united
+    toc: TRUE
+    toc_float: TRUE
+params:
+  D3_pregnancy_reconciled: NULL
+  D3_groups_of_pregnancies_reconciled: NULL
+  thisdatasource: NULL
+  D3_mother_child_ids: NULL
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+```
+
+```{css}
+h1 {color: #ed008c}
+h2 {color: #00adef}
+h3 {color: #6ccff6}
+.list-group-item.active, .list-group-item.active:focus, .list-group-item.active:hover {background-color: #00adef; border-color: #00adef}
+```
+
+```{r parameters}
+D3_pregnancy_reconciled <- data.table(params$D3_pregnancy_reconciled)
+D3_groups_of_pregnancies_reconciled <- data.table(params$D3_groups_of_pregnancies_reconciled)
+thisdatasource <- params$thisdatasource
+D3_mother_child_ids = params$D3_mother_child_ids
+options(warn=-1)
+```
+
+```{r first_adj}
+number_of_women <- uniqueN(D3_pregnancy_reconciled[, person_id])
+number_of_pregnancies <- D3_pregnancy_reconciled[, .N]
+number_of_records <- D3_groups_of_pregnancies_reconciled[, .N]
+
+D3_pregnancy_reconciled <- D3_pregnancy_reconciled[, year_start_of_pregnancy:= as.integer(year(pregnancy_start_date))]
+D3_pregnancy_reconciled <- D3_pregnancy_reconciled[is.na(type_of_pregnancy_end), type_of_pregnancy_end := "UNK"]
+year_start_study <- min(D3_pregnancy_reconciled[, year_start_of_pregnancy])
+year_end_stydy <- max(D3_pregnancy_reconciled[, year_start_of_pregnancy])
+```
+
+
+
+<br/><br/>
+
+
+#### Datasource: `r thisdatasource`
+
+<br/><br/>
+
+The algorithm has retrieved `r number_of_pregnancies ` pregnancies, for a total of `r number_of_women ` women, from `r year_start_study ` to `r year_end_stydy `.
+<br/>
+`r number_of_records ` records were reconciled to build the pregnancies. 
+<br/>
+
+
+
+<br/><br/><br/><br/>
+
+
+---
+
+## Record Quality
+
+---
+
+As reported in the sap, some records have both pregnancy start date and pregnancy end date available, for others one or both of these dates are imputed. Therefore, the quality of the record depends on both the stream and the imputation. The complete list with the hierarchy of the fifteen different qualities is given below:
+
+<br/>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Title</title>
+    <style>
+      /* The . with the boxed represents that it is a class */
+      .boxed {
+        background: #def6ff;
+        color: black;
+        border: 1px solid #00adef;
+        margin: 0px auto;
+
+      }
+    </style>
+  </head>
+  <body>
+    <div class="boxed">
+
+- **1**  EUROCAT: both pregnancy_start_date and pregnancy_end_date are recorded
+
+- **2**  PROMPT: both pregnancy_start_date and pregnancy_end_date are recorded
+ 
+- **3**	ITEMSETS: both pregnancy_start_date and pregnancy_end_date are recorded
+
+- **4**	CONCEPSETS: pregnancy completed and pregnancy_start_date recorded
+ 
+- **5**	PROMPT: pregnancy completed and pregnancy_start_date not available and imputed
+ 
+- **6**	ITEMSETS: pregnancy completed and pregnancy_start_date not available and imputed
+
+- **7**	CONCEPSETS: pre-term birth, meaning non primary care,  pregnancy_start_date not available and imputed
+
+- **7**	CONCEPSETS: at-term birth, meaning non primary care,  pregnancy_start_date not available and imputed
+
+- **7** CONCEPSETS: post-term birth, meaning non primary care,  pregnancy_start_date not available and imputed
+
+- **8**	CONCEPSETS: live birth, meaning non primary care, pregnancy_start_date not available and imputed 
+
+- **9**	CONCEPSETS: still birth, meaning non primary care,  pregnancy_start_date not available and imputed
+ 
+- **10**  CONCEPSETS: interruption, meaning non primary care,  pregnancy_start_date not available and imputed
+ 
+- **11**  CONCEPTSETS: spontaneous abortion, meaning non primary care, pregnancy_start_date not available and imputed
+ 
+- **12**  CONCEPTSETS: ectopic pregnancy, meaning non primary care, pregnancy_start_date not available and imputed
+ 
+- **13**  CONCEPSETS: still birth possible, meaning non primary care,  pregnancy_start_date not available and imputed
+
+- **14**  CONCEPSETS: interruption possible, meaning non primary care,  pregnancy_start_date not available and imputed
+
+- **15**  CONCEPSETS: spontaneous abortion possible, meaning non primary care,  pregnancy_start_date not available and imputed
+
+- **20**  CONCEPTSETS: meaning implying primary care, pregnancy_start_date not available and imputed, end date estimated with record date 
+ 
+- **25**  all Streams: ongoing pregnancy and pregnancy_start_date recorded
+ 
+- **50**  all Streams: ongoing pregnancy having pregnancy_start_date not available and imputed 
+
+
+    </div>
+  </body>
+</html>
+
+<br/>
+
+The subsequent figure shows the number of absolute pregnancies retrieved, stratified by the highest record quality in the pregnancy, and anchored to the pregnancy start year.
+
+```{r quality_graph}
+quality_DF <- D3_pregnancy_reconciled[, order_quality := as.factor(order_quality)]
+quality_DF <- quality_DF[, .N, by = .(year_start_of_pregnancy, order_quality)]
+
+p <- ggplot(quality_DF, aes(year_start_of_pregnancy, N, fill= order_quality))+
+  geom_col()+
+  theme_hc()
+plot <- ggplotly(p)
+plot
+```
+
+The number of pregnancies is also shown in the table below.
+
+```{r stream_table}
+table_streams <- D3_pregnancy_reconciled[, .N, by = .(order_quality, year_start_of_pregnancy)][order(year_start_of_pregnancy, order_quality)]
+datatable(table_streams)
+```
+<br/><br/><br/><br/>
+
+---
+
+## Type of pregnancies end
+
+---
+
+
+```{r type_graph}
+type_DF <- D3_pregnancy_reconciled[, type_of_pregnancy_end := as.factor(type_of_pregnancy_end)]
+type_DF <- type_DF[, .N, by = .(year_start_of_pregnancy, type_of_pregnancy_end)]
+type_DF[, total := sum(N), year_start_of_pregnancy]
+type_DF[, type_percentage := round(N/total *100, 2)]
+
+p <- ggplot(type_DF, aes(year_start_of_pregnancy, type_percentage, fill= type_of_pregnancy_end))+
+  geom_col()+
+  theme_hc()
+plot <- ggplotly(p)
+plot
+```
+
+<br/><br/><br/><br/>
+
+
+---
+
+## Streams 
+
+---
+
+Pregnancies are retrieved from four different streams:
+<br/>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Title</title>
+    <style>
+      /* The . with the boxed represents that it is a class */
+      .boxed {
+        background: #def6ff;
+        color: black;
+        border: 1px solid #00adef;
+        margin: 0px auto;
+
+      }
+    </style>
+  </head>
+  <body>
+    <div class="boxed">
+    
+- **PROMPTS**: records from birth records, pregnancy termination records, and abortion records in <em>SURVEY_ID</em>: the existence of one of these records easily implies that a pregnancy is completed 
+
+- **EUROCAT**: records from <em>EUROCAT</em> table
+
+- **CONCEPTSETS**: diagnostic codes from <em>EVENTS</em> or procedure codes from <em>PROCEDURES</em> or codes from the <em>MEDICAL_RECORDS</em> file that refer to a completed or ongoing pregnancy 
+
+- **ITEMSETS**: routine health variables that are populated only when a woman is pregnant
+
+    </div>
+  </body>
+</html>
+
+<br/>
+
+
+A pregnancy may have records in different streams. The subsequent figure shows the number of absolute pregnancies, stratified by the highest quality stream in with the pregnancy is retrieved, and anchored to the pregnancy start year.
+
+```{r year_start_of_pregnancy}
+D3_pregnancy_reconciled <- D3_pregnancy_reconciled[CONCEPTSETS== "yes", Stream := "CONCEPTSETS"]
+D3_pregnancy_reconciled <- D3_pregnancy_reconciled[ITEMSETS== "yes", Stream := "ITEMSETS"]
+D3_pregnancy_reconciled <- D3_pregnancy_reconciled[EUROCAT== "yes", Stream := "EUROCAT"]
+D3_pregnancy_reconciled <- D3_pregnancy_reconciled[PROMPT== "yes", Stream := "PROMPT"]
+
+```
+
+
+```{r stream_graph}
+stream_plot <- D3_pregnancy_reconciled[, .N, by = .(year_start_of_pregnancy, Stream)]
+
+p <- ggplot(stream_plot, aes(x = year_start_of_pregnancy, y = N , fill= Stream))+
+  geom_col()+
+  theme_hc()
+plot <- ggplotly(p)
+plot
+```
+
+
+<br/><br/><br/><br/>
+
+
+
+
+### Type of pregnancies end 
+
+
+The same analysis is done for each different types of end of pregnancy, which are:
+
+- LB: live birth 
+
+- SB: still birth 
+
+- T: termination 
+
+- SA: spontaneous abortion
+
+- ECT: ectopic pregnancy
+
+- ONGOING: ongoing pregnancy
+
+- UNK: unknown 
+
+- UNF: Other Non-Live Birth
+
+<br/><br/>
+
+### Live Birth
+
+___
+
+
+```{r lb_graph}
+
+LB <- D3_pregnancy_reconciled[type_of_pregnancy_end == "LB"]
+LB <- LB[, order_quality := as.factor(order_quality)]
+
+if (LB[, .N]==0){
+  print("there is no LB among the types of end of pregnancy" )
+}else{
+LB <- LB[, .N, .(order_quality, year_start_of_pregnancy)]
+p <- ggplot(LB, aes(x = year_start_of_pregnancy, y = N, fill= order_quality))+
+  geom_col()+
+  theme_hc()
+plot <- ggplotly(p)
+plot}
+```
+
+<br/><br/>
+
+### Still Birth
+
+___
+
+
+```{r sb_graph}
+SB <- D3_pregnancy_reconciled[type_of_pregnancy_end == "SB"]
+SB <- SB[, order_quality := as.factor(order_quality)]
+
+SB <- SB[, .N, .(order_quality, year_start_of_pregnancy)]
+if (SB[, .N]==0){
+  print("there is no SB among the types of end of pregnancy" )
+}else{
+p <- ggplot(SB, aes(x = year_start_of_pregnancy, y = N, fill= order_quality))+
+  geom_col()+
+  theme_hc()
+plot <- ggplotly(p)
+plot}
+```
+
+
+
+<br/><br/>
+
+### Termination
+
+___
+
+ 
+
+```{r t_graph}
+TE <- D3_pregnancy_reconciled[type_of_pregnancy_end == "T"]
+TE <- TE[, order_quality := as.factor(order_quality)]
+
+TE <- TE[, .N, .(order_quality, year_start_of_pregnancy)]
+if (TE[, .N]==0){
+  print("there is no T among the types of end of pregnancy" )
+}else{
+p <- ggplot(TE, aes(x = year_start_of_pregnancy, y = N,  fill= order_quality))+
+  geom_col()+
+  theme_hc()
+plot <- ggplotly(p)
+plot}
+```
+
+<br/><br/>
+
+### Spontaneous Abortion
+
+___
+
+ 
+
+```{r sa_graph}
+SA <- D3_pregnancy_reconciled[type_of_pregnancy_end == "SA"]
+SA <-SA[, order_quality := as.factor(order_quality)]
+
+SA <-SA[, .N, .(order_quality, year_start_of_pregnancy)]
+if (SA[, .N]==0){
+  print("there is no SA among the types of end of pregnancy" )
+}else{
+p <- ggplot(SA, aes(x = year_start_of_pregnancy, y = N, fill= order_quality))+
+  geom_col()+
+  theme_hc()
+plot <- ggplotly(p)
+plot}
+```
+
+<br/><br/>
+
+### Ectopic
+
+___
+
+
+```{r ectgraph}
+ECT <- D3_pregnancy_reconciled[type_of_pregnancy_end == "ECT"]
+ECT <-ECT[, order_quality := as.factor(order_quality)]
+
+ECT <-ECT[, .N, .(order_quality, year_start_of_pregnancy)]
+if (ECT[, .N]==0){
+  print("there is no ECT among the types of end of pregnancy" )
+}else{
+p <- ggplot(ECT, aes(x = year_start_of_pregnancy, y = N, fill= order_quality))+
+  geom_col()+
+  theme_hc()
+
+plot <- ggplotly(p)
+plot}
+```
+
+
+<br/><br/>
+
+### Ongoing
+
+___
+
+
+```{r ongoinggraph}
+ONGOING <- D3_pregnancy_reconciled[type_of_pregnancy_end == "ONGOING"]
+ONGOING <-ONGOING[, order_quality := as.factor(order_quality)]
+
+ONGOING <-ONGOING[, .N, .(order_quality, year_start_of_pregnancy)]
+if (ONGOING[, .N]==0){
+  print("there is no ONGOING among the types of end of pregnancy" )
+}else{
+p <- ggplot(ONGOING, aes(x = year_start_of_pregnancy, y = N, fill= order_quality))+
+  geom_col()+
+  theme_hc()
+
+plot <- ggplotly(p)
+plot}
+```
+
+
+<br/><br/>
+
+
+### Unknown
+
+___
+
+ 
+
+```{r unk_graph}
+UNK <- D3_pregnancy_reconciled[type_of_pregnancy_end == "UNK" | is.na(type_of_pregnancy_end)]
+UNK <-UNK[, order_quality := as.factor(order_quality)]
+
+UNK <-UNK[, .N, .(order_quality, year_start_of_pregnancy)]
+if (UNK[, .N]==0){
+  print("there is no UNK among the types of end of pregnancy" )
+}else{
+p <- ggplot(UNK, aes(x = year_start_of_pregnancy, y = N, fill= order_quality))+
+  geom_col()+
+  theme_hc()
+plot <- ggplotly(p)
+plot}
+```
+
+<br/><br/>
+
+### Other Non-Live Birth
+
+___
+
+
+```{r unfgraph}
+UNF <- D3_pregnancy_reconciled[type_of_pregnancy_end == "UNF"]
+UNF <-UNF[, order_quality := as.factor(order_quality)]
+
+UNF <-UNF[, .N, .(order_quality, year_start_of_pregnancy)]
+if (UNF[, .N]==0){
+  print("there is no UNF among the types of end of pregnancy" )
+}else{
+p <- ggplot(UNF, aes(x = year_start_of_pregnancy, y = N, fill= order_quality))+
+  geom_col()+
+  theme_hc()
+
+plot <- ggplotly(p)
+plot}
+```
+
+
+
+<br/><br/><br/><br/>
+
+---
+
+## First record
+
+---
+
+<br/>
+
+For each pregnancy the difference (in days) between the date of the first record retrieved and the date of beginning of pregnancy is calculated.
+The sebsequent graphs show the distribution of this distance for each type of end of pregnancy.
+
+<br/><br/>
+
+### Live Birth
+
+___
+
+```{r first_record}
+D3_pregnancy_reconciled[, days_before_first_record := date_of_oldest_record - pregnancy_start_date]
+```
+
+
+```{r first_record_plot}
+LB_first_record <- D3_pregnancy_reconciled[type_of_pregnancy_end == "LB"]
+
+if (LB_first_record[, .N]==0){
+  print("there is no LB among the types of end of pregnancy" )
+}else{
+  LB_first_record <- LB_first_record[, year_start_of_pregnancy := as.factor(year_start_of_pregnancy)]
+  p <- ggplot(LB_first_record, aes(x = days_before_first_record, 
+                                   group = year_start_of_pregnancy, 
+                                   fill = year_start_of_pregnancy, 
+                                   col = year_start_of_pregnancy))+
+    geom_density(alpha = 0.7, na.rm = TRUE)+
+    scale_x_continuous(name="Days between pregnancy start date and first observed record ", limits=c(0, 300))+
+    #facet_grid(type_of_pregnancy_end~.)+
+    theme_hc()
+  
+  plot <- ggplotly(p)
+  plot
+}
+```
+
+<br/><br/>
+
+### Still Birth
+
+___
+
+```{r first_record_SB}
+SB_first_record <- D3_pregnancy_reconciled[type_of_pregnancy_end == "SB"]
+if (SB_first_record[, .N]==0){
+  print("there is no SB among the types of end of pregnancy" )
+}else{
+  SB_first_record <- SB_first_record[, year_start_of_pregnancy := as.factor(year_start_of_pregnancy)]
+  p <- ggplot(SB_first_record, aes(x = days_before_first_record, 
+                                   group = year_start_of_pregnancy, 
+                                   fill = year_start_of_pregnancy, 
+                                   col = year_start_of_pregnancy))+
+    geom_density(alpha = 0.7, na.rm = TRUE)+
+    scale_x_continuous(name="Days between pregnancy start date and first observed record ", limits=c(0, 300))+
+    #facet_grid(type_of_pregnancy_end~.)+
+    theme_hc()
+  
+  plot <- ggplotly(p)
+  plot
+}
+```
+
+<br/><br/>
+
+### Termination
+
+___
+
+```{r first_record_T}
+T_first_record <- D3_pregnancy_reconciled[type_of_pregnancy_end == "T"]
+if (T_first_record[, .N]==0){
+  print("there is no T among the types of end of pregnancy" )
+}else{
+  T_first_record <- T_first_record[, year_start_of_pregnancy := as.factor(year_start_of_pregnancy)]
+  p <- ggplot(T_first_record, aes(x = days_before_first_record, 
+                                   group = year_start_of_pregnancy, 
+                                   fill = year_start_of_pregnancy, 
+                                   col = year_start_of_pregnancy))+
+    geom_density(alpha = 0.7, na.rm = TRUE)+
+    scale_x_continuous(name="Days between pregnancy start date and first observed record ", limits=c(0, 300))+
+    #facet_grid(type_of_pregnancy_end~.)+
+    theme_hc()
+  
+  plot <- ggplotly(p)
+  plot
+}
+```
+
+<br/><br/>
+
+### Spontaneous Abortion
+
+___
+
+```{r first_record_SA}
+SA_first_record <- D3_pregnancy_reconciled[type_of_pregnancy_end == "SA"]
+if (SA_first_record[, .N]==0){
+  print("there is no SA among the types of end of pregnancy" )
+}else{
+  SA_first_record <- SA_first_record[, year_start_of_pregnancy := as.factor(year_start_of_pregnancy)]
+  p <- ggplot(SA_first_record, aes(x = days_before_first_record, 
+                                   group = year_start_of_pregnancy, 
+                                   fill = year_start_of_pregnancy, 
+                                   col = year_start_of_pregnancy))+
+    geom_density(alpha = 0.7, na.rm = TRUE)+
+    scale_x_continuous(name="Days between pregnancy start date and first observed record ", limits=c(0, 300))+
+    #facet_grid(type_of_pregnancy_end~.)+
+    theme_hc()
+  
+  plot <- ggplotly(p)
+  plot
+}
+```
+
+<br/><br/>
+
+### Ectopic
+
+___
+```{r first_record_ECT}
+ECT_first_record <- D3_pregnancy_reconciled[type_of_pregnancy_end == "ECT"]
+if (ECT_first_record[, .N]==0){
+  print("there is no ECT among the types of end of pregnancy" )
+}else{
+  ECT_first_record <- ECT_first_record[, year_start_of_pregnancy := as.factor(year_start_of_pregnancy)]
+  p <- ggplot(ECT_first_record, aes(x = days_before_first_record, 
+                                   group = year_start_of_pregnancy, 
+                                   fill = year_start_of_pregnancy, 
+                                   col = year_start_of_pregnancy))+
+    geom_density(alpha = 0.7, na.rm = TRUE)+
+    scale_x_continuous(name="Days between pregnancy start date and first observed record ", limits=c(0, 300))+
+    #facet_grid(type_of_pregnancy_end~.)+
+    theme_hc()
+  
+  plot <- ggplotly(p)
+  plot
+}
+```
+
+<br/><br/>
+
+### Unknown
+
+___
+```{r first_record_UNK}
+UNK_first_record <- D3_pregnancy_reconciled[type_of_pregnancy_end == "UNK"]
+if (UNK_first_record[, .N]==0){
+  print("there is no UNK among the types of end of pregnancy" )
+}else{
+  UNK_first_record <- UNK_first_record[, year_start_of_pregnancy := as.factor(year_start_of_pregnancy)]
+  p <- ggplot(UNK_first_record, aes(x = days_before_first_record, 
+                                   group = year_start_of_pregnancy, 
+                                   fill = year_start_of_pregnancy, 
+                                   col = year_start_of_pregnancy))+
+    geom_density(alpha = 0.7, na.rm = TRUE)+
+    scale_x_continuous(name="Days between pregnancy start date and first observed record ", limits=c(0, 300))+
+    #facet_grid(type_of_pregnancy_end~.)+
+    theme_hc()
+  
+  
+  plot <- ggplotly(p)
+  plot
+}
+```
+
+<br/><br/>
+
+### Other Non-Live Birth
+
+___
+```{r first_record_UNF}
+UNF_first_record <- D3_pregnancy_reconciled[type_of_pregnancy_end == "UNF"]
+if (UNF_first_record[, .N]==0){
+  print("there is no UNF among the types of end of pregnancy" )
+}else{
+  UNF_first_record <- UNF_first_record[, year_start_of_pregnancy := as.factor(year_start_of_pregnancy)]
+  p <- ggplot(UNF_first_record, aes(x = days_before_first_record, 
+                                   group = year_start_of_pregnancy, 
+                                   fill = year_start_of_pregnancy, 
+                                   col = year_start_of_pregnancy))+
+    geom_density(alpha = 0.7, na.rm = TRUE)+
+    scale_x_continuous(name="Days between pregnancy start date and first observed record ", limits=c(0, 300))+
+    #facet_grid(type_of_pregnancy_end~.)+
+    theme_hc()
+  
+  
+  plot <- ggplotly(p)
+  plot
+}
+```
+
+
+### LOSTFU: lost follow up
+
+___
+```{r first_record_LOSTFU}
+LOSTFU_first_record <- D3_pregnancy_reconciled[type_of_pregnancy_end == "LOSTFU"]
+if (LOSTFU_first_record[, .N]==0){
+  print("there is no LOSTFU among the types of end of pregnancy" )
+}else{
+  LOSTFU_first_record <- LOSTFU_first_record[, year_start_of_pregnancy := as.factor(year_start_of_pregnancy)]
+  p <- ggplot(LOSTFU_first_record, aes(x = days_before_first_record, 
+                                   group = year_start_of_pregnancy, 
+                                   fill = year_start_of_pregnancy, 
+                                   col = year_start_of_pregnancy))+
+    geom_density(alpha = 0.7, na.rm = TRUE)+
+    scale_x_continuous(name="Days between pregnancy start date and first observed record ", limits=c(0, 300))+
+    #facet_grid(type_of_pregnancy_end~.)+
+    theme_hc()
+  
+  
+  plot <- ggplotly(p)
+  plot
+}
+```
+
+<br/><br/>
+<br/><br/><br/><br/>
+
+
+---
+
+## Quality variables  
+
+---
+
+<br/>
+
+The graph shows the absolute number of pregnancies flagged by a quality variables
+
+<br/>
+
+```{r excluded_graph}
+low_quality <- D3_pregnancy_reconciled[GGDE == 1| GGDS ==1 | highest_quality == "4_red"]
+low_quality[GGDE == 1, reason := "Green discordant on end date"]
+low_quality[GGDS == 1, reason := "Green discordant on start date"]
+low_quality[highest_quality == "4_red", reason := "Both start and end imputed"]
+
+
+p <- ggplot(low_quality, aes(x = year_start_of_pregnancy, fill= reason))+
+  geom_bar()+
+  theme_hc()
+plot <- ggplotly(p)
+plot
+```
+
+```{r exclusion_table}
+table <- low_quality[, .N, by = .(reason, year_start_of_pregnancy)][order(year_start_of_pregnancy, reason)]
+datatable(table)
+```
+___
+
+
+<br/><br/>
+
+```{r exclusion_total}
+sum <- low_quality[, .N]
+```
+
+**The total number of pregnancies flagged by a quality variables is  `r sum`, the table below shows the absolute number for each variable:**
+
+<br/><br/>
+
+```{r exclusion_table_total}
+table <- low_quality[, .N, by = .(reason)][order(reason)]
+datatable(table)
+```
+
+<br/><br/><br/><br/>
+
+
+---
+
+## Reconciliation 
+
+---
+
+In the reconciliation outcomes, two records of the same pregnancy can be:
+
+- concordant: equal start and end dates;
+
+- slightly discordant: start and end date different by no more than 7 days;
+
+- discordant: start and end date different more than 7 days;
+
+The next graph shows the percentage of pregnancies stratified by concordance variables or quality.
+
+
+
+
+```{r reconciliation}
+#D3_pregnancy_reconciled <- D3_pregnancy_reconciled[like(algorithm_for_reconciliation, ":Discordant"), Discordant := 1]
+#D3_pregnancy_reconciled <- D3_pregnancy_reconciled[like(algorithm_for_reconciliation,":SlightlyDiscordant"), SlightlyDiscordant := 1]
+#D3_pregnancy_reconciled <- D3_pregnancy_reconciled[like(algorithm_for_reconciliation, ":Inconsistency"), Inconsistency := 1]
+##D3_pregnancy_reconciled <- D3_pregnancy_reconciled[is.na(Reconciliation), Reconciliation := "Concordant"]
+#
+#reconciliation <- D3_pregnancy_reconciled[, .N, by = .(type_of_pregnancy_end, Discordant, SlightlyDiscordant, Inconsistency)]
+#total <- D3_pregnancy_reconciled[, .(total=.N), type_of_pregnancy_end]
+#
+#Discordant <- reconciliation[Discordant == 1 , .(N=sum(N)), type_of_pregnancy_end]
+#Discordant <- Discordant[, reconciliation := "Discordant"]
+#
+#SlightlyDiscordant <- reconciliation[SlightlyDiscordant == 1 , .(N=sum(N)), type_of_pregnancy_end]
+#SlightlyDiscordant <- SlightlyDiscordant[, reconciliation := "SlightlyDiscordant"]
+#
+#Inconsistency <- reconciliation[Inconsistency == 1 , .(N=sum(N)), type_of_pregnancy_end]
+#Inconsistency <- Inconsistency[, reconciliation := "Inconsistency"]
+#
+#DF_plot_rec <- merge(rbind(Discordant, SlightlyDiscordant, Inconsistency), total, by = "type_of_pregnancy_end", all.x = TRUE)
+#
+#DF_plot_rec <- DF_plot_rec[, percentage := N/total * 100]
+
+DF_plot_rec <- D3_pregnancy_reconciled[, .N, by = c("strata", "type_of_pregnancy_end")]
+DF_plot_rec[, total := sum(DF_plot_rec[, N])][, percentage := N/total * 100]
+
+``` 
+ 
+
+
+```{r reconciliation_plot}
+p <- ggplot(DF_plot_rec, aes(x = type_of_pregnancy_end , y = percentage, fill= type_of_pregnancy_end))+
+  geom_col(position = position_dodge2(width = 0.9, preserve = "single"))+
+  facet_wrap(.~strata)+
+  xlab("")+
+  theme_hc()
+plot <- ggplotly(p)
+plot
+``` 
+
+<br/><br/><br/><br/>
+
+<br/><br/>
+
+### Type of pregnancy end discordant 
+
+The next graph shows the absolute number of pregnancies with at least two discordant records on the type of end of pregnancy, stratified by the type of end of pregnancy selected by the algorithm and anchored to the year of start of pregnancy.
+
+```{r type_diff_plot}
+D3_pregnancy_reconciled[algorithm_for_reconciliation %like% "TypeDiff" , TypeDiff := 1]
+D3_pregnancy_reconciled[is.na(TypeDiff) , TypeDiff := 0]
+
+DT_type <- D3_pregnancy_reconciled[ TypeDiff == 1, .N, .(type_of_pregnancy_end, year_start_of_pregnancy)]
+
+p <- ggplot(DT_type, aes(x = year_start_of_pregnancy, y = N , fill= type_of_pregnancy_end))+
+  geom_col()+
+  theme_hc()
+plot <- ggplotly(p)
+plot
+``` 
+
+
+
+
+
+
+---
+
+## Descriptive tables of the pregnancies
+
+---
+
+<br/><br/>
+
+
+```{r dummy_table_exclusion_commented}
+
+# ### Exclusion
+# 
+# ___
+# 
+# 
+# <br/>
+# 
+# In the next table the absolute number of pregnancies included and excluded is reported.
+# 
+# <br/>
+# 
+# **Pregnancies N (%)**
+# ```{r dummy_table_exclusion}
+# ################################################################################
+# #######################       Exclusion by OUTCOME         #####################
+# ################################################################################
+# 
+# Total <- D3_pregnancy_reconciled[, .(Total = .N), type_of_pregnancy_end]
+# Excluded <- D3_pregnancy_reconciled[excluded == 1, .(Excluded = .N), type_of_pregnancy_end]
+# Included <- D3_pregnancy_reconciled[excluded != 1, .(Included = .N), type_of_pregnancy_end]
+# 
+# Excluded <- Excluded[Excluded<5, Excluded := 0]
+# Included <- Included[Included<5, Included := 0]
+# 
+# table_inclusion <- merge(Total, Included, by = "type_of_pregnancy_end", all.x = TRUE)[is.na(Included), Included := 0 ]
+# table_inclusion <- merge(table_inclusion, Excluded, by = "type_of_pregnancy_end", all.x = TRUE)[is.na(Excluded), Excluded := 0 ]
+# 
+# table_inclusion <- table_inclusion[, `:=` (perc_inc = Included / Total * 100,
+#                                            perc_exc = Excluded / Total * 100)]
+# 
+# table_inclusion <- table_inclusion[, .(type_of_pregnancy_end,
+#                                        Total = paste0(Total, " (100%)"), 
+#                                        Included =  paste0(round(Included, 2 ), " (", round(perc_inc, 2 ), "%)"),
+#                                        Excluded =  paste0(round(Excluded, 2 ), " (", round(perc_exc, 2 ), "%)"))]
+# 
+# 
+# table_inclusion <- table_inclusion[Included == "0 (0%)", Included := "<5"]
+# table_inclusion <- table_inclusion[Excluded == "0 (0%)", Excluded := "<5"]
+# 
+# 
+# t_table_inclusion <- as.data.table(t(table_inclusion[order(type_of_pregnancy_end)]))[-1]
+# 
+# colnames(t_table_inclusion) <- table_inclusion[order(type_of_pregnancy_end), type_of_pregnancy_end]
+# rownames(t_table_inclusion) <- colnames(table_inclusion)[-1]
+# 
+# paged_table(t_table_inclusion)
+# 
+# 
+# ```
+# 
+# 
+# 
+# <br/>
+# 
+# The following table shows the reason for exclusion:
+# 
+# - GG_discordant_end : two green records are discrepant on the date of end of pregnancy 
+# 
+# - GG_discordant_start : two green records are discrepant on the date of start of pregnancy 
+# 
+# - Insuff_quality: there are no records of sufficient quality in the pregnancy 
+# 
+# <br/>
+# 
+# **Pregnancies N**
+# 
+# ```{r dummy_table_excluded}
+# ################################################################################
+# #######################       Exclusion by OUTCOME         #####################
+# ################################################################################
+# excluded <- excluded[is.na(type_of_pregnancy_end), type_of_pregnancy_end := "UNK"]
+# Total <- excluded[, .(Total = .N), type_of_pregnancy_end][Total<5, Total:=0]
+# GGDS <- excluded[GGDS == 1, .(GG_discordant_start = .N), type_of_pregnancy_end][GG_discordant_start<5, GG_discordant_start:=0]
+# GGDE <- excluded[GGDE == 1, .(GG_discordant_end = .N), type_of_pregnancy_end][GG_discordant_end<5, GG_discordant_end:=0]
+# INSUFF_Q <- excluded[INSUF_QUALITY == 1, .(Insuff_quality = .N), type_of_pregnancy_end][Insuff_quality<5, Insuff_quality:=0]
+# 
+# table_excluded <- merge(Total, GGDS, by = "type_of_pregnancy_end", all.x = TRUE)[is.na(GG_discordant_start), GG_discordant_start := 0 ]
+# table_excluded <- merge(table_excluded, GGDE, by = "type_of_pregnancy_end", all.x = TRUE)[is.na(GG_discordant_end), GG_discordant_end := 0 ]
+# table_excluded <- merge(table_excluded, INSUFF_Q, by = "type_of_pregnancy_end", all.x = TRUE)[is.na(Insuff_quality), Insuff_quality := 0 ]
+# 
+# table_excluded <- table_excluded[, `:=` (perc_GGDE = GG_discordant_end / Total * 100,
+#                                            perc_GGDS = GG_discordant_start / Total * 100,
+#                                          perc_insuff_q = Insuff_quality / Total * 100)]
+# 
+# 
+# # table_excluded <- table_excluded[, .(type_of_pregnancy_end,
+# #                                      Total = paste0(Total, " (100%)"), 
+# #                                      GG_discordant_end =  paste0(round(GG_discordant_end, 2 ), " (", round(perc_GGDE, 2 ), "%)"),
+# #                                      GG_discordant_start =  paste0(round(GG_discordant_start, 2 ), " (", round(perc_GGDS, 2 ), "%)"),
+# #                                      Insuff_quality =  paste0(round(Insuff_quality, 2 ), " (", round(perc_insuff_q, 2 ), "%)"))]
+# 
+# 
+# table_excluded <- table_excluded[, .(type_of_pregnancy_end,
+#                                      Total = Total, 
+#                                      GG_discordant_end =  GG_discordant_end,
+#                                      GG_discordant_start =  GG_discordant_start,
+#                                      Insuff_quality =  Insuff_quality)]
+# 
+# 
+# t_table_inclusion <- as.data.table(t(table_excluded[order(type_of_pregnancy_end)]))[-1]
+# 
+# colnames(t_table_inclusion) <- table_excluded[order(type_of_pregnancy_end), type_of_pregnancy_end]
+# rownames(t_table_inclusion) <- colnames(table_excluded)[-1]
+# 
+# 
+# for(i in names(t_table_inclusion)){
+#   setnames(t_table_inclusion, i, "var")
+#   t_table_inclusion <- t_table_inclusion[, var:= as.character(var)]
+#   t_table_inclusion <- t_table_inclusion[, var:= str_trim(var)]
+#   t_table_inclusion <- t_table_inclusion[var == "0", var := "<5"]
+#   setnames(t_table_inclusion, "var", i)
+# }
+# 
+# paged_table(t_table_inclusion)
+# 
+# ```
+# 
+# 
+# 
+# 
+# <br/>
+# 
+# **The next analysis will take into account only those pregnancies that have not been excluded**
+# 
+# <br/><br/>
+# 
+# ```{r exc_pregnancies}
+# D3_pregnancy_reconciled <- D3_pregnancy_reconciled[excluded != 1]
+# ```
+
+```
+
+___
+
+### Age
+
+___
+
+<br/>
+
+The following table describes the distribution of the age of start of pregnancy, stratified by type of end of pregnancy. 
+
+<br/>
+
+
+```{r dummy_table_age}
+t_table_age_outcomes <- fread(paste0(direxp, "TableAgeOutcomes.csv"))
+
+paged_table(t_table_age_outcomes)
+```
+
+<br/>
+The next table describes the absolute number of pregnancies (and the percentage in parentheses) stratified by age bands and type of pregnancy end.
+<br/>
+
+**Pregnancies N (%)**
+```{r dummy_table_age_band}
+table_ageband <- fread (paste0(direxp, "TableAgeband.csv"))
+
+paged_table(table_ageband)
+```
+
+<br/><br/>
+
+
+### Record
+
+___
+
+<br/>
+
+The following table shows the mean of records retrieved for each pregnancy. In parentheses is the standard deviation. 
+
+<br/>
+**Mean (SD)**
+
+```{r dummy_table_record}
+
+t_table_records_outcomes <- fread(paste0(direxp, "DTableRecords.csv"))
+
+paged_table(t_table_records_outcomes) 
+
+```
+
+<br/>
+
+For each pregnancy multiple records are reconciled, the next table describes what quality of records represents the pregnancies. 
+
+<br/>
+
+**Pregnancies N (%)**
+```{r dummy_table_quality_D3_pregnancy_reconciled}
+t <- fread(paste0(direxp, "DTableQuality.csv"))
+
+paged_table(t)
+```
+
+<br/><br/>
+
+
+
+
+### Meaning
+
+___
+
+<br/>
+
+The following table describes the meaning end dates.
+
+<br/>
+
+**Pregnancies N (%)**
+```{r dummy_table_meaning_end}
+table_meaning_end <- fread(paste0(direxp, "DTableMeaningEnd.csv"))
+
+paged_table(table_meaning_end)
+
+
+```
+
+<br/>
+
+The following table describes the meaning start dates 
+
+<br/>
+
+**Pregnancies N (%)**
+```{r dummy_table_meaning_start}
+table_meaning_start <- fread(paste0(direxp, "DTableMeaningStart.csv"))
+
+paged_table(table_meaning_start)
+
+
+options(warn=0)
+```
+
+<br/><br/>
+
+### Gender
+
+___
+
+<br/>
+
+The following table describes the gender.
+
+<br/>
+
+**Pregnancies N (%)**
+```{r dummy_table_gender}
+table_meaning_end <- fread(paste0(direxp, "TablePregSex.csv"))
+
+paged_table(table_meaning_end)
+
+
+```
+
+---
+
+## Linkage to children
+
+---
+
+<br/><br/>
+
+
+```{r survey_ids}
+# number_of_pregnancies_with_child <- uniqueN(D3_mother_child_ids[, pregnancy_id])
+# 
+# D3_mother_child_ids_plt_year <- merge(D3_pregnancy_reconciled[type_of_pregnancy_end == 'LB', .(pregnancy_id, year = year(pregnancy_start_date))],
+#                                       unique(D3_mother_child_ids), 
+#                                       by = 'pregnancy_id',
+#                                       all.x = TRUE)
+# 
+# 
+# 
+# 
+# D3_mother_child_ids_plt_year[, n_child := seq_along(.I), pregnancy_id][,n_child := max(n_child), pregnancy_id]
+# D3_mother_child_ids_plt_year[, n_mother := seq_along(.I), child_id][, n_mother:= max(n_mother), child_id ]
+# D3_mother_child_ids_plt_year[is.na(child_id), n_mother := 0]
+# 
+# n_of_child_with_more_than_one_mother = uniqueN(D3_mother_child_ids_plt_year[n_mother > 1, .(child_id)])
+# 
+# n_of_pregnancies_sharing_child = 0
+# 
+# 
+# D3_mother_child_ids_plt_year[is.na(child_id), n_child := 0]
+# 
+# D3_mother_child_ids_plt_year <- unique(D3_mother_child_ids_plt_year[,.(pregnancy_id, year, n_child)])
+# 
+# D3_mother_child_ids_plt = D3_mother_child_ids_plt_year[, .N, .(n_child, year)]
+# 
+# number_of_pregnancies_with_one_child <- D3_mother_child_ids_plt[n_child == 1, sum(N)]
+# number_of_pregnancies_with_more_than_one_child <- D3_mother_child_ids_plt[n_child > 1, sum(N)]
+
+if (this_datasource_has_person_rel_table){
+  N_LB <- D3_pregnancy_reconciled[type_of_pregnancy_end == 'LB', .N]
+  
+  number_of_pregnancies_with_one_child <- D3_pregnancy_reconciled[type_of_pregnancy_end == 'LB' & n_child == 1, .N]
+  number_of_pregnancies_with_more_than_one_child <- D3_pregnancy_reconciled[type_of_pregnancy_end == 'LB' & n_child > 1, .N]
+  
+  number_of_LB_pregnancies_with_no_child <-  N_LB - number_of_pregnancies_with_one_child - number_of_pregnancies_with_more_than_one_child
+  
+  n_of_pregnancies_sharing_child <- D3_pregnancy_reconciled[type_of_pregnancy_end == 'LB' & child_in_multiple_pregnancies == 1, .N]
+  
+  
+  
+  D3_mother_child_ids[, n_mother := seq_along(.I), child_id][, n_mother:= max(n_mother), child_id ]
+  D3_mother_child_ids[is.na(child_id), n_mother := 0]
+  n_of_child_with_more_than_one_mother = uniqueN(D3_mother_child_ids[n_mother > 1, .(child_id)])
+  
+  talk_1 = paste0("We attempted to link the ",  N_LB,  " pregnancies with a livebirth with children. Among these, ", number_of_pregnancies_with_one_child, " have 1 child, ", number_of_pregnancies_with_more_than_one_child, " have more than one child, and ", number_of_LB_pregnancies_with_no_child, " are not linked to any child. ")
+  
+  Table_child = data.table(n_of_child_in_more_than_one_pregnancy = n_of_child_with_more_than_one_mother, 
+                           n_of_pregnancies_sharing_child = n_of_pregnancies_sharing_child)
+  
+  fwrite(Table_child, paste0(direxp, "Table_child_multiple_preg_", year_start_study, "_", year_end_stydy, ".csv"))
+  
+  if(n_of_child_with_more_than_one_mother > 0){
+    talk_2 = paste0('  WARNING: there were ', n_of_child_with_more_than_one_mother , ' children who were linked to more than one pregnancy,', n_of_pregnancies_sharing_child, ' pregnancies were involved. ')
+  }else{
+    talk_2 = ' We have checked that no child was linked to more than one pregnancy. '
+  }
+
+  talk_3 =  " The following graph shows the absolute number of live birth pregnancies linked to the respective number of children, anchored by the year of start of pregnancy."
+
+  talk = paste0(talk_1, talk_2, talk_3)
+}else{
+  talk = "There is no person relationship table."
+}
+```
+
+
+
+
+`r talk `
+
+
+
+
+```{r survey_ids_plt}
+if (this_datasource_has_person_rel_table){
+  D3_pregnancy_reconciled[type_of_pregnancy_end == "LB" & is.na(n_child), n_child := 0]
+  D3_mother_child_ids_plt <- D3_pregnancy_reconciled[type_of_pregnancy_end == "LB", .N, .(n_child, year = year_start_of_pregnancy)]
+  
+  fwrite(Table_child, paste0(direxp, "Table_child_", year_start_study, "_", year_end_stydy, ".csv"))
+
+D3_mother_child_ids_plt[, n_child := as.factor(n_child)]
+plt_child <- ggplot(D3_mother_child_ids_plt, aes(year, N, fill = n_child))+
+  geom_col()+
+  xlab("Number of child")+
+  ylab("Number of pregnancies")+
+  theme_hc()
+plt_child <- ggplotly(plt_child)
+plt_child
+}
+```
