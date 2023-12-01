@@ -211,9 +211,9 @@ for (algo in c("M1","S1","S2","S3","S4","S5","S6")) {
                 
                 if (thisdatasource=="UOSL") {
                         print("Computing component C")
-                        get(paste0("D3_indication_SAP1_",dr))[prescriber_speciality==41 |prescriber_speciality==2 | prescriber_speciality==84 |prescriber_speciality==152 | prescriber_speciality==192 , component_C:="NEUROPATHIC_PAIN"]
+                        get(paste0("D3_indication_SAP1_",dr))[(prescriber_speciality==41 |prescriber_speciality==2 | prescriber_speciality==84 |prescriber_speciality==152 | prescriber_speciality==192) & prescriber_speciality_vocabulary=="NorPD_prescriber_speciality" , component_C:="NEUROPATHIC_PAIN"]
                         
-                        get(paste0("D3_indication_SAP1_",dr))[prescriber_speciality==58 , component_C:="GAD"]
+                        get(paste0("D3_indication_SAP1_",dr))[prescriber_speciality==58 & prescriber_speciality_vocabulary=="NorPD_prescriber_speciality" , component_C:="GAD"]
                 }
                 
                 
