@@ -1,4 +1,4 @@
-smart_save <- function(df, folder, subpop = F, extension = "qs", override_name = F, save_copy = NULL) {
+smart_save <- function(df, folder, subpop = F, extension = "rds", override_name = F, save_copy = NULL) {
   
   subpop_str <- if (isFALSE(subpop)) "" else suffix[[subpop]]
   df_name <- if (isFALSE(override_name)) deparse(substitute(df)) else override_name

@@ -19,11 +19,11 @@
 
 # input: the VAC4EU spreadsheets, restricted to the conceptsets associated with this study
 
-OUT_codelist <- fread(paste0(thisdir,"/p_parameters/archive_parameters/Code_list_DU_120523.csv"))
+OUT_codelist <- fread(paste0(thisdir,"/p_parameters/archive_parameters/codelist_DP1_171123.csv"))
+OUT_codelist<-OUT_codelist[coding_system!="french_medical_speciality" & coding_system!="indication_code" & coding_system!="NorPD_prescriber_speciality" & coding_system!="speciality_prescriber_ Finish",]
 
-# 
-# if (!(thisdatasource %in% colnames(OUT_codelist))) stop("The parameter thisdatasource is not in the codelist column name. Please check")
-# OUT_codelist<-OUT_codelist[get(thisdatasource)==1,]
+if (!(thisdatasource %in% colnames(OUT_codelist))) stop("The parameter thisdatasource is not in the codelist column name. Please check")
+OUT_codelist<-OUT_codelist[get(thisdatasource)==1,]
 
 OUT_codelist <- OUT_codelist[, .(coding_system, code, event_abbreviation)]
 #OUT_codelist <- OUT_codelist[type != "PrA"]
@@ -41,30 +41,33 @@ concept_set_codes_our_study <- lapply(split(OUT_codelist, by = "event_abbreviati
 concept_set_codes_our_study <- lapply(concept_set_codes_our_study, sapply, unlist, use.names = F, simplify = F)
 
      
- # concept_set_codes_our_study_excl <- vector(mode="list")
- # 
- # if (thisdatasource=="SAIL" |thisdatasource=="EFEMERIS" | thisdatasource=="SNDS") {
- #   concept_set_codes_our_study_excl[["EPILEPSY_DRUGS"]][["ATC"]] <- c("N03AX16", "N03AX12","N03AF01")
- # }else{
- #   concept_set_codes_our_study_excl[["EPILEPSY_DRUGS"]][["ATC"]] <- c("N03AX16", "N03AX12")
- #   
- # }
- # 
- # 
- # if (thisdatasource=="SAIL" |thisdatasource=="EFEMERIS" | thisdatasource=="RDRU_FISABIO") {
- #   concept_set_codes_our_study_excl[["GAD"]][["ATC"]] <- c("N06AA", "N06AX21") 
- # }else{
- #   concept_set_codes_our_study_excl[["GAD"]][["ATC"]] <- c("N06AA", "N06AX") 
- #   
- # }
+ concept_set_codes_our_study_excl <- vector(mode="list")
+ 
+ if (thisdatasource=="SAIL" |thisdatasource=="EFEMERIS" | thisdatasource=="SNDS") {
+   concept_set_codes_our_study_excl[["EPILEPSY_DRUGS"]][["ATC"]] <- c("N03AX16", "N03AX12","N03AF01")
+ }else{
+   concept_set_codes_our_study_excl[["EPILEPSY_DRUGS"]][["ATC"]] <- c("N03AX16", "N03AX12")
+   
+ }
+
+ 
+ if (thisdatasource=="SAIL" |thisdatasource=="EFEMERIS" | thisdatasource=="RDRU_FISABIO") {
+   concept_set_codes_our_study_excl[["GAD"]][["ATC"]] <- c("N06AA", "N06AX21") 
+ }else{
+   concept_set_codes_our_study_excl[["GAD"]][["ATC"]] <- c("N06AA", "N06AX") 
+   
+ }
 
 
 
 concept_set_domains<- vector(mode="list")
 for (concept in names(concept_set_codes_our_study)) {
-  concept_set_domains[[concept]] = "Medicines"
+  if (!grepl("DRUGS", concept) & concept!="GABAPENTIN" & concept!="PREGABALIN") {
+    concept_set_domains[[concept]] = "Diagnosis"
+  }else{
+    concept_set_domains[[concept]] = "Medicines"
+  }
 }
-
 
 
 rm(concept)

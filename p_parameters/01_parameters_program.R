@@ -19,6 +19,8 @@ dirconceptsets <- set_and_create_dir("/g_intermediate/concept_sets/")
 direxp <- set_and_create_dir("/g_export/")
 dirmacro <- set_and_create_dir("/p_macro/")
 dirpargen <- set_and_create_dir("/g_parameters/")
+toupload <- set_and_create_dir("/g_touploadinDRE/")
+
 #direvents <- set_and_create_dir("/g_intermediate/events/")
 #dircomponents <- set_and_create_dir("/g_intermediate/components/")
 #PathOutputFolder <- set_and_create_dir("/g_describeHTML")
@@ -66,7 +68,7 @@ if (thisdatasource!="THL") {
 
 
 #----------------
-extension = "rds"
+extension = "csv"
 
 instance_creation <- ymd(CDM_SOURCE[1,"date_creation"])
 recommended_end_date <- ymd(CDM_SOURCE[1,"recommended_end_date"])
@@ -87,7 +89,6 @@ source(paste0(dirmacro,"Smart_save.R"))
 source(paste0(dirmacro,"DRE_Threshold.R"))
 source(paste0(dirmacro,"launch_step.R"))
 source(paste0(dirmacro,"Cube.R"))
-source(paste0(dirmacro,"CountPrevalence.R"))
 
 
 

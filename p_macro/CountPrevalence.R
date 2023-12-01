@@ -153,10 +153,9 @@ CountPrevalence <- function(Dataset_cohort, Dataset_events, UoO_id,key=NULL,Star
   ################################################################################################################################
   #Check if the subjects have overlap in the time intervals (within strata???), deend_period_datesd by end-start date.
   ################################################################################################################################
-
   print("Check if observation periods do not have overlap")
-  test_overlap<-Dataset_cohort[!is.na(get(End_date))&!is.na(get(End_date))&get(End_date)>get(Start_date),][,.(get(UoO_id), as.integer(get(Start_date)), as.integer(get(End_date)))]  #why choosen_key??? maybe UoO_id
-  setkey(test_overlap,V1,V2,V3) 
+  test_overlap<-Dataset_cohort[!is.na(get(End_date))&!is.na(get(End_date))&get(End_date)>get(Start_date),][,.(get(choosen_key), as.integer(get(Start_date)), as.integer(get(End_date)))]
+  setkey(test_overlap,V1,V2,V3)
   test_overlap2<-as.data.table(foverlaps(test_overlap, test_overlap, type="any", which=TRUE))
   test_overlap2<-test_overlap2[xid!=yid,]
   test_overlap[,id:=as.integer(rownames(test_overlap))]
@@ -533,7 +532,6 @@ CountPrevalence <- function(Dataset_cohort, Dataset_events, UoO_id,key=NULL,Star
       }
     }
     
-
     
     if(!(start_period_dates[[1]] %in% names(Dataset_cohort))) {
       CJ.dt = function(X,Y) {
@@ -599,11 +597,9 @@ CountPrevalence <- function(Dataset_cohort, Dataset_events, UoO_id,key=NULL,Star
     #if the subject is not in population remove his Date_condition and Name_condition
     dataset<-unique(dataset[in_population==0,c(Name_condition,Date_condition):=as.list(rep(NA,2))])
     
-
     #prepare the dataset for the dcast:
     #converte Date_condition in integer 
     # add "prev_" in all the column Name_condition
-
     dataset<-unique(dataset[, (Date_condition):= fifelse(!is.na(get(Date_condition)) & get(Date_condition) <= get(End_date), 1, 0)])
     dataset<-dataset[,(Name_condition):=paste0("prev_",gsub(" ", "",get(Name_condition)))]
     
@@ -616,16 +612,12 @@ CountPrevalence <- function(Dataset_cohort, Dataset_events, UoO_id,key=NULL,Star
     f = as.formula(sprintf('%s ~ %s', paste(dcast_vars, collapse = "+ "), Name_condition))
     
     dataset<-dcast(dataset,f, value.var = Date_condition ,fill=0)
-
+    
     
     #reorder and remove not necessary columns 
     setorder(dataset,"value1")
     dataset<-dataset[,"value1":=NULL]
     if ("prev_NA" %in% colnames(dataset)) dataset<-dataset[,prev_NA:=NULL]
-    
-    to_rename<-colnames(dataset)[!grepl("^prev_", colnames(dataset) ) &   !(colnames(dataset) %in% c("person_id","pregnancy_id","cohort_entry_date","cohort_exit_date" ,"in_population","timeframe"))]
-
-    if(length(to_rename)>0) setnames(dataset,to_rename,paste0("prev_",to_rename))
     
     #extract all the column names containing "prev_"
     cols<-colnames( dataset )[ grepl("^prev_", colnames( dataset )) ]

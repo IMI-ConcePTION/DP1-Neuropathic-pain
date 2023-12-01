@@ -3,9 +3,10 @@
 meanings_of_this_study<-vector(mode="list")
 meanings_of_this_study[["D_primarycare"]]=c("primary_care","gp_visit","primary_care_diagnosis","primary_care_event","gpe","birth_registry")
 
-meanings_of_this_study[["E_inpatient"]]=c("hospital_unknown", "hospitalisation","hospitalisation_not_overnight", "pd","sd", "hospital_diagnosis","hp","hospital_encounter","radiation_hospitalised","perinatal_death_registry_mother","anomalies_mother_registry","death_registry")
-meanings_of_this_study[["F_outpatient"]]=c("outpatient_hospital_visit", "outpatient_specialist_visit", "outpatient_for_intime_patient","op", "reason_for_specialist_encounter","specialist_diagnosis" ,"access_to_mental_health_service_primary","access_to_mental_health_service_comorbidity","outpaitent_contact","secondary_care_specialist","access_to_mental_health_service_primary baby and teenager")
-meanings_of_this_study[["G_emergency"]]=c("emergency_contact", "emergency_room_diagnosis","hospitalisation_ICU_primary","hospitalisation_ICU_secondary", "ed","CRITICAL_CARE_STAY","hospitalisation_ICU_unspecified", "emergency_room_presentation")
+meanings_of_this_study[["E_inpatient"]]=c("hospital_unknown", "hospitalisation","hospitalisation_not_overnight", "pd","sd", "hospital_diagnosis","hp","hospital_encounter","radiation_hospitalised","death_registry")  #"perinatal_death_registry_mother","anomalies_mother_registry"  #mothers of child cases only
+
+meanings_of_this_study[["F_outpatient"]]=c("outpatient_hospital_visit", "outpatient_specialist_visit", "outpatient_for_intime_patient","op", "reason_for_specialist_encounter","specialist_diagnosis" ,"access_to_mental_health_service_primary","access_to_mental_health_service_comorbidity","outpaitent_contact","secondary_care_specialist","access_to_mental_health_service_primary baby and teenager","access_to_mental_health_service")
+meanings_of_this_study[["G_emergency"]]=c("emergency_contact", "emergency_room_diagnosis","hospitalisation_ICU_primary","hospitalisation_ICU_secondary", "ed","CRITICAL_CARE_STAY","hospitalisation_ICU_unspecified", "emergency_room_presentation" )
 meanings_of_this_study[["Fbis_hosp"]]=c("unknown","unknown_not_primarycare")
 meanings_of_this_study[["H_exemptions"]]=c("history_of", "long_term_diagnosis", "exemption")
 
@@ -64,7 +65,7 @@ for (conceptset in concept_sets_of_our_study){
 # fix for ICD10ES
 for (conceptset in concept_sets_of_our_study){
   if (concept_set_domains[[conceptset]] == "Diagnosis"){
-    concept_set_codes_our_study[[conceptset]][["ICD10ES"]] <- concept_set_codes_our_study[[conceptset]][["ICD10"]]
+    concept_set_codes_our_study[[conceptset]][["ICD10ES"]] <- c(concept_set_codes_our_study[[conceptset]][["ICD10"]],concept_set_codes_our_study[[conceptset]][["ICD10ES"]])
   }
 }
 

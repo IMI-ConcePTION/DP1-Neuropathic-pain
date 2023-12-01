@@ -10,9 +10,9 @@ print("COMPUTE SPELLS OF TIME FROM OBSERVATION_PERIODS")
 # import input datasets
 OBSERVATION_PERIODS <- read_CDM_tables("OBSERVATION_PERIODS")
 
-if (thisdatasource %in% c("RDRU_FISABIO")) {
+if (thisdatasource %in% datasources_obs_per_from_pregnancies) {
   
-  OBSERVATION_PERIODS_preg <- as.data.table(get(load(paste0(dirpregnancyinput, "D3_pregnancy_final.RData"))[[1]]))
+  OBSERVATION_PERIODS_preg <- as.data.table(get(load(paste0(dirpregnancy, "D3_pregnancy_final.RData"))[[1]]))
   
   setnames(OBSERVATION_PERIODS_preg, c("pregnancy_start_date", "pregnancy_end_date"), c("op_start_date", "op_end_date"))
   OBSERVATION_PERIODS_preg <- OBSERVATION_PERIODS_preg[, .(person_id, op_start_date, op_end_date)]
@@ -27,6 +27,10 @@ if (thisdatasource %in% c("RDRU_FISABIO")) {
   OBSERVATION_PERIODS <- rbindlist(list(OBSERVATION_PERIODS, OBSERVATION_PERIODS_preg), use.names=TRUE)
   
 }
+
+OBSERVATION_PERIODS_inverted <- copy(OBSERVATION_PERIODS)[ymd(op_start_date) > ymd(op_end_date), ]
+smart_save(OBSERVATION_PERIODS_inverted, dirtemp, extension = "rds")
+OBSERVATION_PERIODS <- OBSERVATION_PERIODS[ymd(op_start_date) <= ymd(op_end_date), ]
 
 if (thisdatasource %not in% this_datasource_has_subpopulations) {
   

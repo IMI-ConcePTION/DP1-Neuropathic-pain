@@ -1,4 +1,4 @@
-smart_load <- function(df, folder, subpop = F, extension = "qs", return = F) {
+smart_load <- function(df, folder, subpop = F, extension = "rds", return = F) {
   
   subpop_str <- if (isFALSE(subpop)) "" else suffix[[subpop]]
   extension <- if (!grepl("\\.", extension)) paste0(".", extension) else extension

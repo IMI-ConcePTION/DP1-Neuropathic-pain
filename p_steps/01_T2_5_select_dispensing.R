@@ -2,7 +2,7 @@
 #keep only dispensations overlapping the spells and with at least 1 year of distance from entry spell and 1 year from exit spell
 load(paste0(dirconceptsets,"GABAPENTIN.RData"))
 
-GABAPENTIN<-unique(GABAPENTIN[!is.na(date)][, .(person_id,medicinal_product_id,codvar,date ,indication_code,prescriber_speciality)])
+GABAPENTIN<-unique(GABAPENTIN[!is.na(date)][, .(person_id,medicinal_product_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)])
 
 GABAPENTIN[,date2:=date]
 setkeyv(GABAPENTIN,c("person_id","date","date2"))
@@ -93,8 +93,8 @@ fwrite(get("Flowchart_exclusion_criteria_dispensing_gaba"),
        paste0(diroutput, "Flowchart_exclusion_criteria_dispensing_gaba.csv"))
 
 #save the dispensations included in a spell
-smart_save(selected_dispensing_gabapentin[,.(person_id,date,codvar,indication_code,prescriber_speciality)], dirtemp, override_name = "selected_dispensing_gabapentin", extension = "rds")
-fwrite(selected_dispensing_gabapentin, file=paste0(dirtemp,"selected_dispensing_gabapentin.csv"))
+smart_save(selected_dispensing_gabapentin[, .(person_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)], dirtemp, override_name = "selected_dispensing_gabapentin", extension = "rds")
+fwrite(selected_dispensing_gabapentin[, .(person_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)], file=paste0(dirtemp,"selected_dispensing_gabapentin.csv"))
 
 print(paste0(nrow(selected_dispensing_gabapentin) ," gabapentin dispensing were selected for the women of childbearing age cohort"))
 }
@@ -112,9 +112,9 @@ fwrite(get("Flowchart_exclusion_criteria_dispensing_gaba_preg"),
 selected_dispensing_gabapentin_pregnancy<-selected_dispensing_gabapentin_pregnancy[, .(person_id,medicinal_product_id,codvar,date , indication_code,prescriber_speciality)]
 
 #save the dispensations included in a spell
-smart_save(selected_dispensing_gabapentin_pregnancy[,.(person_id,date,codvar,indication_code,prescriber_speciality)], dirtemp, override_name = "selected_dispensing_gabapentin_pregnancy", extension = "rds")
+smart_save(selected_dispensing_gabapentin_pregnancy[, .(person_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)], dirtemp, override_name = "selected_dispensing_gabapentin_pregnancy", extension = "rds")
 
-fwrite(selected_dispensing_gabapentin_pregnancy, file=paste0(dirtemp,"selected_dispensing_gabapentin_pregnancy.csv"))
+fwrite(selected_dispensing_gabapentin_pregnancy[, .(person_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)], file=paste0(dirtemp,"selected_dispensing_gabapentin_pregnancy.csv"))
 
 print(paste0(nrow(selected_dispensing_gabapentin_pregnancy) ," gabapentin dispensing were selected in the one year before or during a pregnancy"))
 
@@ -123,7 +123,8 @@ print(paste0(nrow(selected_dispensing_gabapentin_pregnancy) ," gabapentin dispen
 ################ PREGABALIN
 load(paste0(dirconceptsets,"PREGABALIN.RData"))
 
-PREGABALIN<-unique(PREGABALIN[!is.na(date)][, .(person_id,medicinal_product_id,codvar,date ,    indication_code,prescriber_speciality)])
+PREGABALIN<-unique(PREGABALIN[!is.na(date)][, .(person_id,medicinal_product_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)])
+
 
 
 PREGABALIN<-PREGABALIN[!is.na(date),][,date2:=date]
@@ -194,8 +195,8 @@ if (!(thisdatasource %in% DAP_with_pregnancy_only)){
          paste0(diroutput, "Flowchart_exclusion_criteria_dispensing_pregaba.csv"))
   
   #save the dispensations included in a spell
-  smart_save(selected_dispensing_pregabalin[,.(person_id,date,codvar,indication_code,prescriber_speciality)], dirtemp, override_name = "selected_dispensing_pregabalin", extension = "rds")
-  fwrite(selected_dispensing_pregabalin, file=paste0(dirtemp,"selected_dispensing_pregabalin.csv"))
+  smart_save(selected_dispensing_pregabalin[, .(person_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)], dirtemp, override_name = "selected_dispensing_pregabalin", extension = "rds")
+  fwrite(selected_dispensing_pregabalin[, .(person_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)], file=paste0(dirtemp,"selected_dispensing_pregabalin.csv"))
   
   
   print(paste0(nrow(selected_dispensing_pregabalin) ," pregabalin dispensing were selected for the women of childbearing age cohort"))
@@ -213,8 +214,10 @@ fwrite(get("Flowchart_exclusion_criteria_dispensing_pregaba_preg"),
 selected_dispensing_pregabalin_pregnancy<-selected_dispensing_pregabalin_pregnancy[, .(person_id,medicinal_product_id,codvar,date , indication_code,prescriber_speciality)]
 
 #save the dispensations included in a spell
-smart_save(selected_dispensing_pregabalin_pregnancy[,.(person_id,date,codvar,indication_code,prescriber_speciality)], dirtemp, override_name = "selected_dispensing_pregabalin_pregnancy", extension = "rds")
-fwrite(selected_dispensing_pregabalin_pregnancy, file=paste0(dirtemp,"selected_dispensing_pregabalin_pregnancy.csv"))
+smart_save(selected_dispensing_pregabalin_pregnancy[, .(person_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)], dirtemp, override_name = "selected_dispensing_pregabalin_pregnancy", extension = "rds")
+
+
+fwrite(selected_dispensing_pregabalin_pregnancy[, .(person_id,codvar,date ,indication_code,indication_code_vocabulary ,prescriber_speciality,prescriber_speciality_vocabulary)], file=paste0(dirtemp,"selected_dispensing_pregabalin_pregnancy.csv"))
 
 print(paste0(nrow(selected_dispensing_pregabalin_pregnancy) ," pregabalin dispensing were selected in the one year before or during a pregnancy"))
 

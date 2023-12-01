@@ -27,13 +27,68 @@ fwrite(table, paste0(direxp, "Table_number_of_women_and_pregnancies.csv"))
 
 
 # Clean dataset
-D3_sel_cri <- D3_sel_cri[, .(person_id,birth_date, sex_or_birth_date_is_not_defined,not_female,too_old_at_study_start,too_old_at_study_end )]
+D3_sel_cri <- D3_sel_cri[, .(person_id,birth_date, sex_or_birth_date_is_not_defined,not_female )]
+
+#	to receive at least one prescription/dispensing for pregabalin or gabapentin between the start and end dates and to have at least 12 months of data available before and after the prescription/dispensing for gabapentinoids
+
+smart_load("selected_dispensing_gabapentin", dirtemp,extension = "rds")
+
+selected_dispensing_gabapentin_tmp<-unique(selected_dispensing_gabapentin[,disp_passed_inclusion_criteria:=1][,.(person_id,disp_passed_inclusion_criteria)])
+
+D3_sel_cri<-merge(D3_sel_cri,selected_dispensing_gabapentin_tmp,all.x=T,by="person_id")
+
+D3_sel_cri<-D3_sel_cri[disp_passed_inclusion_criteria==1,disp_gaba_not_passed_inclusion_criteria:=0]
+
+D3_sel_cri<-D3_sel_cri[is.na(disp_gaba_not_passed_inclusion_criteria),disp_gaba_not_passed_inclusion_criteria:=1][,disp_passed_inclusion_criteria:=NULL]
+
+#check: women receiving at least one gabapentinoids prescription/dispensing when she is between 15 and 49 years
+
+age_check<-merge(D3_sel_cri[,.(person_id,birth_date)],unique(selected_dispensing_gabapentin[,.(person_id,date)]),all=F,by="person_id")
+
+age_check[,age_at_disp:=age_fast(birth_date,date)][,age_at_right_range:=fifelse(age_at_disp>=15 & age_at_disp<=49,1,0)]
+
+age_tmp<-unique(age_check[,age_at_right_range_perperson:=max(age_at_right_range),by="person_id"][,.(person_id,age_at_right_range_perperson)])
+rm(age_check)
+
+D3_sel_cri<-merge(D3_sel_cri,age_tmp,by="person_id",all.x=T)
+rm(age_tmp)
+
+D3_sel_cri[,no_gaba_disp_atright_age_range:=fifelse(age_at_right_range_perperson==0 | is.na(age_at_right_range_perperson),1,0)][,age_at_right_range_perperson:=NULL]
+
+smart_load("selected_dispensing_pregabalin", dirtemp, extension = "rds")
+
+selected_dispensing_pregabalin_tmp<-unique(selected_dispensing_pregabalin[,disp_passed_inclusion_criteria:=1][,.(person_id,disp_passed_inclusion_criteria)])
+
+D3_sel_cri<-merge(D3_sel_cri,selected_dispensing_pregabalin_tmp,all.x=T,by="person_id")
+
+D3_sel_cri<-D3_sel_cri[disp_passed_inclusion_criteria==1,disp_pregaba_not_passed_inclusion_criteria:=0]
+
+D3_sel_cri<-D3_sel_cri[is.na(disp_pregaba_not_passed_inclusion_criteria),disp_pregaba_not_passed_inclusion_criteria:=1][,disp_passed_inclusion_criteria:=NULL]
+
+###
+D3_sel_cri<-D3_sel_cri[disp_pregaba_not_passed_inclusion_criteria==1 & disp_gaba_not_passed_inclusion_criteria==1, disp_gaba_pregaba_not_passed_inclusion_criteria:=1][is.na(disp_gaba_pregaba_not_passed_inclusion_criteria),disp_gaba_pregaba_not_passed_inclusion_criteria:=0]
+  
+#check: women receiving at least one gabapentinoids prescription/dispensing when she is between 15 and 49 years
+
+age_check<-merge(D3_sel_cri[,.(person_id,birth_date)],unique(selected_dispensing_pregabalin[,.(person_id,date)]),all=F,by="person_id")
+
+age_check[,age_at_disp:=age_fast(birth_date,date)][,age_at_right_range:=fifelse(age_at_disp>=15 & age_at_disp<=49,1,0)]
+
+age_tmp<-unique(age_check[,age_at_right_range_perperson:=max(age_at_right_range),by="person_id"][,.(person_id,age_at_right_range_perperson)])
+
+D3_sel_cri<-merge(D3_sel_cri,age_tmp,by="person_id",all.x=T)
+
+D3_sel_cri[,no_pregaba_disp_atright_age_range:=fifelse(age_at_right_range_perperson==0 | is.na(age_at_right_range_perperson),1,0)][,age_at_right_range_perperson:=NULL]
+
+D3_sel_cri[,no_gaba_pregaba_disp_atright_age_range:=pmin(no_gaba_disp_atright_age_range,no_pregaba_disp_atright_age_range),by="person_id"]
+
+
 
 
 smart_load("D3_clean_spells", dirtemp, extension = "rds")
 
-D3_clean_spells <- D3_clean_spells[, c("birth_date", "death_date", "entry_spell_category_crude",
-                                       "exit_spell_category_crude", "op_meaning", "num_spell") := NULL]
+D3_clean_spells <- D3_clean_spells[, .(person_id, entry_spell_category, exit_spell_category, starts_after_ending,
+                                       no_overlap_study_period,spell_less_than_24_months )]
 
 # Creation of no_spells criteria
 D3_sel_cri <- D3_sel_cri[, no_spells := fifelse(person_id %in% unlist(unique(D3_clean_spells[, .(person_id)])), 0, 1)]
@@ -53,28 +108,22 @@ D3_clean_spells[removed_row == 0, no_spell_overlapping_the_study_period := fifel
 D3_clean_spells[removed_row == 0, removed_row := rowSums(.SD), .SDcols = c("removed_row", "no_overlap_study_period")]
 D3_clean_spells[, c("no_overlap_study_period", "tot_no_overlap_study_period", "tot_spell_num") := NULL]
 
-# Creation of too_young_female criteria
+# Creation of no_spell_longer_than_24_months. Keep other spells even if they are less than 365 days long
 D3_clean_spells[removed_row == 0, tot_spell_num := .N, by = person_id]
-D3_clean_spells[removed_row == 0, tot_too_young_at_exit_spell := sum(too_young_at_exit_spell), by = person_id]
-D3_clean_spells[removed_row == 0, too_young_female := fifelse(tot_too_young_at_exit_spell == tot_spell_num, 1, 0)]
-D3_clean_spells[removed_row == 0, removed_row := rowSums(.SD), .SDcols = c("removed_row", "too_young_at_exit_spell")]
-D3_clean_spells[, c("too_young_at_exit_spell", "tot_too_young_at_exit_spell", "tot_spell_num") := NULL]
-
-# Creation of too_young_female criteria
-D3_clean_spells[removed_row == 0, tot_spell_num := .N, by = person_id]
-D3_clean_spells[removed_row == 0, tot_too_old_at_start_spell := sum(too_old_at_start_spell), by = person_id]
-D3_clean_spells[removed_row == 0, too_old_female := fifelse(tot_too_old_at_start_spell == tot_spell_num, 1, 0)]
-D3_clean_spells[removed_row == 0, removed_row := rowSums(.SD), .SDcols = c("removed_row", "too_old_at_start_spell")]
-D3_clean_spells[, c("too_old_at_start_spell", "tot_too_old_at_start_spell", "tot_spell_num") := NULL]
-
-# Creation of no_spell_longer_than_12_months. Keep other spells even if they are less than 365 days long
-D3_clean_spells[removed_row == 0, tot_spell_num := .N, by = person_id]
-D3_clean_spells[removed_row == 0, tot_x_days := sum(spell_less_than_12_months), by = person_id]
-D3_clean_spells[removed_row == 0, no_spell_longer_than_12_months := fifelse(tot_x_days == tot_spell_num, 1, 0)]
+D3_clean_spells[removed_row == 0, tot_x_days := sum(spell_less_than_24_months), by = person_id]
+D3_clean_spells[removed_row == 0, no_spell_longer_than_24_months := fifelse(tot_x_days == tot_spell_num, 1, 0)]
 D3_clean_spells[removed_row == 0, removed_row := rowSums(.SD),
-                .SDcols = c("removed_row", "spell_less_than_12_months")]
-D3_clean_spells[, c("spell_less_than_12_months", "tot_x_days", "tot_spell_num","removed_row") := NULL]
+                .SDcols = c("removed_row", "spell_less_than_24_months")]
+D3_clean_spells[, c("spell_less_than_24_months", "tot_x_days", "tot_spell_num","removed_row") := NULL]
 
+# Creation of all_spells_include_vax1_but_less than_365_days_from_it
+# D3_clean_spells[removed_row == 0, tot_spell_num := .N, by = person_id]
+# D3_clean_spells[removed_row == 0, tot_less_than_365_days := sum(has_vax1_before_365_days), by = person_id]
+# D3_clean_spells[removed_row == 0, all_spells_include_vax1_but_less_than_365_days_from_it := fifelse(
+#   tot_less_than_365_days == tot_spell_num, 1, 0)]
+# D3_clean_spells[removed_row == 0, removed_row := rowSums(.SD),
+#                 .SDcols = c("removed_row", "has_vax1_before_365_days")]
+# D3_clean_spells[, c("has_vax1_before_365_days", "tot_less_than_365_days", "tot_spell_num", "removed_row") := NULL]
 
 spells_per_person<-unique(D3_clean_spells[,.(person_id,entry_spell_category,exit_spell_category)])
 # # Keep only one row for each spell which syntethize the previously defined exclusion criteria

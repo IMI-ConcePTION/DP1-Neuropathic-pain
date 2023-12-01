@@ -4,9 +4,10 @@
 ###################################################################
 
 
-datasources_prescriptions <- c("SNDS") # Norway (UOSL) removed because the ETL is wrong: they filled date_dispensing and not date_prescription
+datasources_prescriptions <- c("SNDS", "SAIL Databank") # Norway (UOSL) removed because the ETL is wrong: they filled date_dispensing and not date_prescription
 thisdatasource_has_prescriptions <- ifelse(thisdatasource %in% datasources_prescriptions,TRUE,FALSE)
 rm(datasources_prescriptions)
+datasources_obs_per_from_pregnancies <- c("RDRU_FISABIO")
 
 
 # assign -files_ConcePTION_CDM_tables-: it is a 2-level list, listing the csv files where the tables of the local instance of the ConcePTION CDM are stored 
